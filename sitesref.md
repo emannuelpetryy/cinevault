@@ -15,7 +15,8 @@
 
 ---
 
-### LANDING PAGES & SITES EM DESTAQUE
+### LANDING PAGES, DIRETÓRIOS & SITES EM DESTAQUE
+* https://directoryyy.com — Diretório curado de ferramentas, recursos e produtos digitais
 * https://landdding.com — Referências de páginas de destino e landing pages modernas
 * https://land-book.com — Curadoria diária das melhores referências de sites da web
 * https://inspora.design — Descobertas diárias de design e tendências selecionadas do X

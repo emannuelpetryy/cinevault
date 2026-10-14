@@ -16,6 +16,7 @@ Este arquivo centraliza todos os links de referências de design, inspiração v
 | **Posts Design** | [posts.design](https://posts.design) | Referências e inspirações de visuais e artes para redes sociais. |
 | **Landdding** | [landdding.com](https://landdding.com) | Galeria de referências de landing pages e design moderno. |
 | **Minimal Gallery** | [minimal.gallery](https://minimal.gallery) | Curadoria de sites com foco absoluto em estética limpa, tipografia e minimalismo. |
+| **Directoryyy** | [directoryyy.com](https://directoryyy.com) | Diretório curado de ferramentas, recursos e produtos digitais. |
 
 ---
 
