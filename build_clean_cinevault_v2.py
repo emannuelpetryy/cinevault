@@ -313,17 +313,14 @@ HTML_PAGE = """<!DOCTYPE html>
         <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 pb-36">
             
             <!-- Step Progress Indicator -->
-            <div class="max-w-xl mx-auto mb-6 sm:mb-8">
-                <div class="flex items-center justify-between mb-2.5 text-xs font-mono">
-                    <div class="flex items-center gap-2">
-                        <span id="wizard-step-badge" class="px-2 py-0.5 rounded-md bg-purple-600/30 text-purple-300 font-mono text-[11px] border border-purple-500/40">Passo 1 de 3</span>
-                        <span id="wizard-step-title-header" class="text-white font-semibold">Formato da Sessão</span>
-                    </div>
-                    <span id="wizard-progress-summary" class="text-[11px] font-mono text-slate-400">Passo 1: Tipo</span>
+            <div class="max-w-xl mx-auto mb-5 sm:mb-7">
+                <div class="flex items-center justify-between mb-2 text-xs">
+                    <span id="wizard-step-badge" class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-xs border border-purple-500/30 font-semibold">Passo 1 de 3</span>
+                    <span id="wizard-step-title-header" class="text-xs font-semibold text-slate-300 tracking-tight">Formato da Sessão</span>
                 </div>
                 <!-- 3 Segmented Bars (Clickable to jump to visited steps) -->
                 <div class="grid grid-cols-3 gap-2">
-                    <div id="prog-bar-1" onclick="goToStep(1)" class="h-1.5 rounded-full bg-purple-500 transition-all duration-300 cursor-pointer" title="Passo 1: Formato"></div>
+                    <div id="prog-bar-1" onclick="goToStep(1)" class="h-1.5 rounded-full bg-gradient-to-r from-[#820AD1] to-[#A855F7] shadow-[0_0_12px_rgba(168,85,247,0.5)] transition-all duration-300 cursor-pointer" title="Passo 1: Formato"></div>
                     <div id="prog-bar-2" onclick="goToStep(2)" class="h-1.5 rounded-full bg-white/[0.08] transition-all duration-300 cursor-pointer" title="Passo 2: Gênero"></div>
                     <div id="prog-bar-3" onclick="goToStep(3)" class="h-1.5 rounded-full bg-white/[0.08] transition-all duration-300 cursor-pointer" title="Passo 3: Notas"></div>
                 </div>
@@ -398,9 +395,9 @@ HTML_PAGE = """<!DOCTYPE html>
 
             <!-- STEP 3: NOTAS / AVALIAÇÃO -->
             <div id="step-panel-3" class="step-fade-in max-w-2xl mx-auto space-y-4 hidden">
-                <div class="text-center sm:text-left mb-6">
+                <div class="text-center sm:text-left mb-5">
                     <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight mb-1.5">Qual o padrão de avaliação?</h2>
-                    <p class="text-xs sm:text-sm text-slate-400">Filtre por aclamação crítica, avaliação da audiência ou explore tudo.</p>
+                    <p class="text-xs sm:text-sm text-slate-400">Toque no critério desejado para abrir o catálogo imediatamente.</p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="wizard-ratings-grid">
@@ -531,55 +528,31 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                 </div>
 
-                <!-- Sub-Navigation: Independent Format Segment & Status Tabs -->
-                <div class="py-2.5 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar border-t border-white/[0.04]">
-                    <div class="flex items-center gap-2 shrink-0">
-                        
-                        <!-- Format Segment: [ Tudo | Filmes | Séries ] -->
-                        <div class="flex items-center bg-white/[0.04] p-0.5 rounded-full border border-white/[0.08] shrink-0 text-xs font-medium">
-                            <button onclick="setTypeFilter('all')" data-format-tab="all" class="format-pill px-3 py-1 rounded-full transition text-slate-300 hover:text-white">
-                                Tudo <span data-format-count="all" class="font-mono text-[10px] opacity-70 ml-0.5">217</span>
-                            </button>
-                            <button onclick="setTypeFilter('movie')" data-format-tab="movie" class="format-pill px-3 py-1 rounded-full transition text-slate-300 hover:text-white">
-                                🎬 Filmes <span data-format-count="movie" class="font-mono text-[10px] opacity-70 ml-0.5">203</span>
-                            </button>
-                            <button onclick="setTypeFilter('series')" data-format-tab="series" class="format-pill px-3 py-1 rounded-full transition text-slate-300 hover:text-white">
-                                📺 Séries <span data-format-count="series" class="font-mono text-[10px] opacity-70 ml-0.5">14</span>
-                            </button>
-                        </div>
-
-                        <div class="h-4 w-px bg-white/[0.08] shrink-0"></div>
-
-                        <!-- Status Tabs: [ Todos | Prioridades | Na Fila | Concluídos ] -->
-                        <div class="flex items-center gap-1 text-xs font-medium shrink-0">
-                            <button onclick="setStatusFilter('all')" data-tab="all" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition">
-                                Todos <span data-tab-count="all" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
-                            </button>
-                            <button onclick="setStatusFilter('priority')" data-tab="priority" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                                <span>Prioridades</span>
-                                <span data-tab-count="priority" class="text-amber-400/80 font-mono text-[11px]">0</span>
-                            </button>
-                            <button onclick="setStatusFilter('queue')" data-tab="queue" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition">
-                                Na Fila <span data-tab-count="queue" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
-                            </button>
-                            <button onclick="setStatusFilter('watched')" data-tab="watched" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                <span>Concluídos</span>
-                                <span data-tab-count="watched" class="text-emerald-400/80 font-mono text-[11px]">0</span>
-                            </button>
-                        </div>
+                <!-- Sub-Navigation Tier 1: Format Segment & Sort Control -->
+                <div class="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-white/[0.04]">
+                    <!-- Format Segment: [ Tudo | 🎬 Filmes | 📺 Séries ] -->
+                    <div class="grid grid-cols-3 sm:flex items-center bg-white/[0.04] p-1 rounded-2xl border border-white/[0.08] text-xs font-medium w-full sm:w-auto">
+                        <button onclick="setTypeFilter('all')" data-format-tab="all" class="format-pill px-3 py-1.5 rounded-xl transition text-center text-slate-300 hover:text-white">
+                            Tudo <span data-format-count="all" class="font-mono text-[10px] opacity-70 ml-0.5">217</span>
+                        </button>
+                        <button onclick="setTypeFilter('movie')" data-format-tab="movie" class="format-pill px-3 py-1.5 rounded-xl transition text-center text-slate-300 hover:text-white">
+                            🎬 Filmes <span data-format-count="movie" class="font-mono text-[10px] opacity-70 ml-0.5">203</span>
+                        </button>
+                        <button onclick="setTypeFilter('series')" data-format-tab="series" class="format-pill px-3 py-1.5 rounded-xl transition text-center text-slate-300 hover:text-white">
+                            📺 Séries <span data-format-count="series" class="font-mono text-[10px] opacity-70 ml-0.5">14</span>
+                        </button>
                     </div>
 
-                    <div class="flex items-center gap-3 shrink-0 text-xs">
-                        <div class="hidden md:flex items-center gap-2 text-slate-400 text-[11px]">
+                    <!-- Right Controls: Sort Order Dropdown & Telemetry Progress -->
+                    <div class="flex items-center justify-between sm:justify-end gap-3 text-xs">
+                        <div class="flex items-center gap-2 text-slate-400 text-[11px]">
                             <span id="telemetry-text">0 assistidos</span>
-                            <div class="w-20 h-1 bg-white/[0.08] rounded-full overflow-hidden">
+                            <div class="w-16 sm:w-20 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
                                 <div id="telemetry-bar" class="h-full bg-gradient-to-r from-purple-500 to-emerald-400" style="width: 0%"></div>
                             </div>
                         </div>
 
-                        <select id="sort-select" onchange="setSortOrder(this.value)" class="bg-white/[0.04] border border-white/[0.08] rounded-lg px-2.5 py-1 text-xs text-slate-300 focus:outline-none focus:border-purple-500 cursor-pointer">
+                        <select id="sort-select" onchange="setSortOrder(this.value)" class="bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-purple-500 cursor-pointer transition">
                             <option value="status">Ordenar: Prioridade</option>
                             <option value="imdb_desc">Maior IMDb ★</option>
                             <option value="critics_desc">Maior Crítica 🍅</option>
@@ -588,6 +561,29 @@ HTML_PAGE = """<!DOCTYPE html>
                             <option value="alpha_asc">Nome (A — Z)</option>
                         </select>
                     </div>
+                </div>
+
+                <!-- Sub-Navigation Tier 2: Status Tabs (Todos | Prioridades | Na Fila | Concluídos) -->
+                <div class="py-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs font-medium border-t border-white/[0.04]">
+                    <span class="text-[11px] font-mono text-slate-500 uppercase tracking-wider mr-1 shrink-0 hidden sm:inline">Status:</span>
+                    <button onclick="setStatusFilter('all')" data-tab="all" class="tab-pill px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition shrink-0 bg-white/[0.02] border border-white/[0.05]">
+                        Todos <span data-tab-count="all" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
+                    </button>
+                    <button onclick="setStatusFilter('priority')" data-tab="priority" class="tab-pill px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition shrink-0 flex items-center gap-1.5 bg-white/[0.02] border border-white/[0.05]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        <span>Prioridades</span>
+                        <span data-tab-count="priority" class="text-amber-400/80 font-mono text-[11px]">0</span>
+                    </button>
+                    <button onclick="setStatusFilter('queue')" data-tab="queue" class="tab-pill px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition shrink-0 flex items-center gap-1.5 bg-white/[0.02] border border-white/[0.05]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        <span>Na Fila</span>
+                        <span data-tab-count="queue" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
+                    </button>
+                    <button onclick="setStatusFilter('watched')" data-tab="watched" class="tab-pill px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition shrink-0 flex items-center gap-1.5 bg-white/[0.02] border border-white/[0.05]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>Concluídos</span>
+                        <span data-tab-count="watched" class="text-emerald-400/80 font-mono text-[11px]">0</span>
+                    </button>
                 </div>
 
                 <!-- Enhanced Interactive Genre Strip (Horizontal Scroll) -->
@@ -638,32 +634,28 @@ HTML_PAGE = """<!DOCTYPE html>
         <!-- ================= MAIN CATALOG CONTENT ================= -->
         <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-safe">
 
-            <!-- Unified Concierge Active Discovery Banner with Dismissable Chips -->
-            <div id="wizard-active-banner" class="hidden mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-[#0F1118] to-[#0F1118] border border-purple-500/25 shadow-lg shadow-purple-950/20">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex items-center gap-2.5 flex-wrap">
-                        <div class="w-7 h-7 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-white">Assistente de Escolha</span>
-                            <span id="wizard-banner-count" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">0 obras</span>
-                        </div>
-                        <!-- Removable filter chips container -->
-                        <div id="wizard-chips-container" class="flex items-center gap-1.5 flex-wrap">
-                            <!-- Injected dynamically: [Filmes ✕], [Drama ✕], [IMDb 8.0+ ✕] -->
-                        </div>
+            <!-- Compact 2-Tier Concierge Active Discovery Banner -->
+            <div id="wizard-active-banner" class="hidden mb-4 p-3 rounded-2xl bg-[#11131E] border border-purple-500/30 shadow-lg shadow-purple-950/20">
+                <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-white/[0.06]">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                        <span class="text-xs font-bold text-white tracking-tight">Sessão Personalizada</span>
+                        <span id="wizard-banner-count" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">0 obras</span>
                     </div>
-                    <div class="flex items-center gap-2 ml-auto shrink-0">
-                        <button onclick="openWizard(1)" class="h-8 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-xs font-medium text-purple-200 transition active:scale-95 flex items-center gap-1.5" title="Refazer escolha em etapas">
-                            <svg class="w-3 h-3 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                            <span>Refazer etapas</span>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="openWizard(1)" class="h-7 px-2.5 rounded-lg bg-purple-600/25 hover:bg-purple-600/35 border border-purple-500/40 text-[11px] font-semibold text-purple-200 transition active:scale-95 flex items-center gap-1" title="Refazer etapas no assistente">
+                            <svg class="w-3 h-3 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                            <span>Refazer</span>
                         </button>
-                        <button onclick="resetAllFilters()" class="h-8 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-300 hover:text-white transition active:scale-95 flex items-center gap-1.5" title="Remover filtros e ver todo o catálogo tranquilo">
-                            <span>Ver tudo tranquilo</span>
-                            <span class="text-slate-500 text-[11px]">✕</span>
+                        <button onclick="resetAllFilters()" class="h-7 px-2.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-[11px] font-medium text-slate-300 hover:text-white transition active:scale-95 flex items-center gap-1" title="Ver todo o catálogo sem filtros">
+                            <span>Ver tudo</span>
+                            <span class="text-slate-500 text-[10px]">✕</span>
                         </button>
                     </div>
+                </div>
+                <!-- Removable filter chips container -->
+                <div id="wizard-chips-container" class="flex items-center gap-1.5 flex-wrap">
+                    <!-- Injected dynamically: [Filmes ✕], [Drama ✕], [IMDb 8.0+ ✕] -->
                 </div>
             </div>
 
@@ -1090,7 +1082,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 title: 'Obras-Primas Absolutas',
                 tag: 'IMDb ★ 8.0+',
                 tagClass: 'bg-amber-400/15 text-amber-300 border-amber-400/30',
-                desc: 'O mais alto padrão do cinema e da TV mundial.',
+                desc: 'O ápice do cinema: produções consagradas de altíssimo impacto.',
                 icon: '🏆'
             },
             {
@@ -1098,39 +1090,23 @@ HTML_PAGE = """<!DOCTYPE html>
                 title: 'Muito Bem Avaliados',
                 tag: 'IMDb ★ 7.5+',
                 tagClass: 'bg-amber-400/15 text-amber-300 border-amber-400/30',
-                desc: 'Qualidade narrativa comprovada e alto padrão.',
+                desc: 'Altíssima qualidade de roteiro, direção e atuações memoráveis.',
                 icon: '⭐'
             },
             {
-                id: 'rt_critics',
-                title: 'Aclamados pela Crítica',
-                tag: '🍅 Rotten ≥ 75%',
-                tagClass: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-                desc: 'Selo Certified Fresh do consenso dos críticos.',
-                icon: '🍅'
-            },
-            {
-                id: 'rt_audience',
-                title: 'Favoritos do Público',
-                tag: '🍿 Popcorn ≥ 85%',
-                tagClass: 'bg-amber-300/15 text-amber-200 border-amber-300/30',
-                desc: 'Aprovados com honras pelas grandes multidões.',
-                icon: '🍿'
-            },
-            {
                 id: 'imdb_7',
-                title: 'Bem Avaliados',
+                title: 'Bons & Recomendados',
                 tag: 'IMDb ★ 7.0+',
                 tagClass: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-                desc: 'Histórias sólidas que valem a sua sessão.',
+                desc: 'Histórias envolventes que garantem uma excelente sessão.',
                 icon: '👍'
             },
             {
                 id: 'all',
                 title: 'Qualquer Avaliação',
-                tag: 'Sem filtro',
+                tag: 'Sem restrição',
                 tagClass: 'bg-white/10 text-slate-300 border-white/20',
-                desc: 'Ver todas as obras do gênero sem restrição de nota.',
+                desc: 'Explorar todas as obras do gênero sem filtro de nota.',
                 icon: '✨'
             }
         ];
@@ -1269,8 +1245,6 @@ HTML_PAGE = """<!DOCTYPE html>
                 if (wRating === 'imdb_8' && (!item.imdb || item.imdb < 8.0)) return false;
                 if (wRating === 'imdb_75' && (!item.imdb || item.imdb < 7.5)) return false;
                 if (wRating === 'imdb_7' && (!item.imdb || item.imdb < 7.0)) return false;
-                if (wRating === 'rt_critics' && (!item.rtCritics || item.rtCritics < 75)) return false;
-                if (wRating === 'rt_audience' && (!item.rtAudience || item.rtAudience < 85)) return false;
                 return true;
             }).length;
         }
@@ -1328,23 +1302,27 @@ HTML_PAGE = """<!DOCTYPE html>
                 const count = getLiveMatchCount(wizardState.type, wizardState.genre, r.id);
                 const isSelected = wizardState.ratingChoice === r.id;
                 const selectedClass = isSelected ? 'selected' : '';
-                const countClass = count > 0 ? 'text-purple-300 font-semibold' : 'text-slate-600';
+                const countClass = count > 0 ? 'text-amber-300 font-semibold' : 'text-slate-600';
                 return `
-                    <div onclick="selectWizardRating('${r.id}')" data-w-rating="${r.id}" class="wizard-card p-4 flex flex-col justify-between ${selectedClass}">
+                    <div onclick="selectWizardRating('${r.id}')" data-w-rating="${r.id}" class="wizard-card p-4 sm:p-5 flex flex-col justify-between ${selectedClass}">
                         <div>
-                            <div class="flex items-start justify-between gap-2 mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-2xl">${r.icon}</span>
-                                    <span class="px-2 py-0.5 rounded-lg text-[10px] font-mono border ${r.tagClass}">${r.tag}</span>
+                            <div class="flex items-start justify-between gap-2 mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                        ${r.icon}
+                                    </div>
+                                    <div>
+                                        <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold border ${r.tagClass}">${r.tag}</span>
+                                    </div>
                                 </div>
-                                ${isSelected ? '<span class="w-4 h-4 rounded-full bg-purple-500 text-white flex items-center justify-center text-[10px] font-bold shadow-[0_0_8px_#A855F7]">✓</span>' : ''}
+                                ${isSelected ? '<span class="w-5 h-5 rounded-full bg-gradient-to-r from-purple-500 to-amber-400 text-white flex items-center justify-center text-xs font-bold shadow-[0_0_10px_#A855F7]">✓</span>' : ''}
                             </div>
-                            <h4 class="font-bold text-sm text-white mb-1">${escapeHtml(r.title)}</h4>
+                            <h4 class="font-bold text-sm sm:text-base text-white mb-1 tracking-tight">${escapeHtml(r.title)}</h4>
                             <p class="text-xs text-slate-400 leading-relaxed">${escapeHtml(r.desc)}</p>
                         </div>
-                        <div class="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-xs font-mono">
-                            <span class="${countClass}">${count} ${formatLabel} disponíveis</span>
-                            <span class="w-1.5 h-1.5 rounded-full ${count > 0 ? 'bg-emerald-400' : 'bg-slate-700'}"></span>
+                        <div class="mt-4 pt-3 border-t border-white/[0.04] flex items-center justify-between text-xs font-mono">
+                            <span class="${countClass}">${count} ${formatLabel}</span>
+                            <span class="inline-flex items-center gap-1 text-[11px] text-purple-400 font-sans font-medium">Toque para ver ›</span>
                         </div>
                     </div>
                 `;
@@ -1372,14 +1350,11 @@ HTML_PAGE = """<!DOCTYPE html>
             void activePanel.offsetWidth; // Force DOM reflow to re-trigger CSS keyframes
             activePanel.classList.add(direction === 'backward' ? 'step-slide-left' : 'step-slide-right');
 
-            const titles = ["Formato da Sessão", "Gênero & Atmosfera", "Nível de Avaliação"];
-            const summaries = ["Passo 1: Tipo", "Passo 2: Gênero", "Passo 3: Notas"];
+            const titles = ["Formato da Sessão", "Gênero & Atmosfera", "Avaliação IMDb"];
             const sb = document.getElementById('wizard-step-badge');
             const th = document.getElementById('wizard-step-title-header');
-            const ps = document.getElementById('wizard-progress-summary');
             if (sb) sb.textContent = `Passo ${wizardState.step} de 3`;
             if (th) th.textContent = titles[wizardState.step - 1];
-            if (ps) ps.textContent = summaries[wizardState.step - 1];
 
             for (let i = 1; i <= 3; i++) {
                 const bar = document.getElementById(`prog-bar-${i}`);
@@ -1511,9 +1486,16 @@ HTML_PAGE = """<!DOCTYPE html>
             }
         }
 
-        function selectWizardRating(ratingChoice) {
+        function selectWizardRating(ratingChoice, autoAdvance = true) {
             wizardState.ratingChoice = ratingChoice;
+            renderWizardRatings();
             updateWizardUI('forward');
+            if (autoAdvance) {
+                clearTimeout(wizardAdvanceTimer);
+                wizardAdvanceTimer = setTimeout(() => {
+                    applyWizardToCatalog();
+                }, 220);
+            }
         }
 
         function wizardNextStep() {
@@ -1864,28 +1846,38 @@ HTML_PAGE = """<!DOCTYPE html>
                                     ${escapeHtml(item.title)}
                                 </h3>
 
-                                <!-- Genre & Subgenre -->
+                                <!-- Genre & Subgenre (Deduplicated Clean Display) -->
                                 <p class="text-xs text-slate-400 truncate mb-2.5">
-                                    <span class="text-purple-300/90 font-medium">${escapeHtml(item.genre)}</span>
-                                    ${item.subgenre ? `<span class="text-slate-600"> · </span><span class="text-slate-500">${escapeHtml(item.subgenre)}</span>` : ''}
+                                    ${(() => {
+                                        const g = item.genre || 'Filme';
+                                        let sub = item.subgenre || '';
+                                        if (sub) {
+                                            sub = sub.replace(new RegExp('^' + g + '\\s*[/·-]\\s*', 'i'), '').trim();
+                                            if (sub.toLowerCase() === g.toLowerCase()) sub = '';
+                                        }
+                                        return `<span class="text-purple-300 font-medium">${escapeHtml(g)}</span>` +
+                                               (sub ? `<span class="text-slate-600"> · </span><span class="text-slate-400">${escapeHtml(sub)}</span>` : '');
+                                    })()}
                                 </p>
 
-                                <!-- Quiet Ratings Row -->
-                                <div class="flex items-center gap-2.5 text-xs font-mono mb-3">
-                                    <span class="inline-flex items-center gap-1 text-amber-400/95" title="Nota IMDb">
-                                        <span class="font-bold text-[10px] bg-amber-400/15 text-amber-300 px-1 py-0.5 rounded leading-none">IMDb</span>
+                                <!-- Polished Native Badge Capsules for Ratings -->
+                                <div class="flex items-center gap-1.5 text-xs font-mono mb-3 flex-wrap">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-400/10 border border-amber-400/20 text-amber-300 font-bold" title="Nota IMDb">
+                                        <span class="text-[10px] opacity-75">IMDb</span>
                                         <span>${item.imdb ? item.imdb.toFixed(1) : '—'}</span>
                                     </span>
-                                    <span class="text-slate-700">·</span>
-                                    <span class="inline-flex items-center gap-1 text-rose-300/90" title="Rotten Tomatoes Crítica">
-                                        <span>🍅</span>
-                                        <span>${item.rtCritics ? item.rtCritics + '%' : '—'}</span>
-                                    </span>
-                                    <span class="text-slate-700">·</span>
-                                    <span class="inline-flex items-center gap-1 text-amber-200/90" title="Rotten Tomatoes Público">
-                                        <span>🍿</span>
-                                        <span>${item.rtAudience ? item.rtAudience + '%' : '—'}</span>
-                                    </span>
+                                    ${item.rtCritics ? `
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300" title="Rotten Tomatoes Crítica">
+                                            <span>🍅</span>
+                                            <span>${item.rtCritics}%</span>
+                                        </span>
+                                    ` : ''}
+                                    ${item.rtAudience ? `
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-amber-300/10 border border-amber-300/20 text-amber-200" title="Rotten Tomatoes Público">
+                                            <span>🍿</span>
+                                            <span>${item.rtAudience}%</span>
+                                        </span>
+                                    ` : ''}
                                 </div>
 
                                 <!-- Optional Note -->
