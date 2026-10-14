@@ -9,9 +9,10 @@
     <meta name="apple-mobile-web-app-title" content="Cinevault">
     <title>Cinevault — Emannuel Petry</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -50,50 +51,61 @@
             background-color: #090A0F;
             color: #F8FAFC;
             overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', sans-serif;
+            letter-spacing: -0.018em;
             font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        }
+        .font-mono, [data-mono] {
+            font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
+            letter-spacing: -0.028em;
+        }
+        h1, h2, h3, h4, .font-heading {
+            letter-spacing: -0.035em;
         }
         .card-clean {
             background: #0E1017;
             border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @media (hover: hover) and (pointer: fine) {
             .card-clean:hover {
-                border-color: rgba(255, 255, 255, 0.14);
+                border-color: rgba(255, 255, 255, 0.15);
                 background: #121520;
-                transform: translateY(-2px);
-                box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.6), 0 0 24px -10px rgba(130, 10, 209, 0.15);
+                transform: translateY(-2.5px);
+                box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.7), 0 0 24px -10px rgba(130, 10, 209, 0.2);
             }
         }
         .card-clean:active {
-            transform: scale(0.995);
+            transform: scale(0.99);
         }
 
-        /* Wizard Discovery Cards */
+        /* Wizard Discovery Cards with Apple HIG Tactile Spring Physics */
         .wizard-card {
             background: #0E1017;
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 1rem;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.125rem;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
             user-select: none;
             position: relative;
+            overflow: hidden;
         }
         @media (hover: hover) and (pointer: fine) {
             .wizard-card:hover:not(.disabled) {
-                border-color: rgba(168, 85, 247, 0.4);
+                border-color: rgba(168, 85, 247, 0.5);
                 background: #131724;
                 transform: translateY(-2px);
-                box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5), 0 0 20px -8px rgba(130, 10, 209, 0.25);
+                box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.6), 0 0 24px -6px rgba(130, 10, 209, 0.3);
             }
         }
         .wizard-card:active:not(.disabled) {
-            transform: scale(0.98);
+            transform: scale(0.97) !important;
+            transition-duration: 0.1s;
         }
         .wizard-card.selected {
             border-color: #A855F7 !important;
-            background: linear-gradient(135deg, rgba(130, 10, 209, 0.18) 0%, rgba(18, 22, 34, 0.96) 100%) !important;
-            box-shadow: 0 0 24px -4px rgba(130, 10, 209, 0.4) !important;
+            background: linear-gradient(135deg, rgba(130, 10, 209, 0.22) 0%, rgba(18, 22, 34, 0.98) 100%) !important;
+            box-shadow: 0 0 28px -4px rgba(130, 10, 209, 0.45), inset 0 0 16px rgba(130, 10, 209, 0.15) !important;
         }
         .wizard-card.disabled {
             opacity: 0.35;
@@ -101,13 +113,65 @@
             border-style: dashed;
         }
 
-        /* Animation between steps */
-        @keyframes stepFadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* 60fps Directional Slide Transitions between Steps */
+        @keyframes stepSlideRight {
+            0% {
+                opacity: 0;
+                transform: translate3d(42px, 0, 0) scale(0.985);
+                filter: blur(1.5px);
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+                filter: blur(0px);
+            }
         }
-        .step-fade-in {
-            animation: stepFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        @keyframes stepSlideLeft {
+            0% {
+                opacity: 0;
+                transform: translate3d(-42px, 0, 0) scale(0.985);
+                filter: blur(1.5px);
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+                filter: blur(0px);
+            }
+        }
+        .step-slide-right {
+            animation: stepSlideRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: transform, opacity, filter;
+        }
+        .step-slide-left {
+            animation: stepSlideLeft 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: transform, opacity, filter;
+        }
+
+        /* View enter transition */
+        @keyframes viewEnter {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, 14px, 0) scale(0.992);
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+        .view-enter {
+            animation: viewEnter 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: transform, opacity;
+        }
+
+        /* Elastic spring pop on click */
+        @keyframes springPop {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.18); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .spring-pop {
+            animation: springPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
         /* Scrollbar */
@@ -180,9 +244,9 @@
                 </div>
 
                 <!-- Escape Hatch (Ver tudo sem filtros / tranquilo) -->
-                <button onclick="skipWizard()" class="text-xs font-medium text-slate-300 hover:text-white px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition active:scale-95 flex items-center gap-1.5" title="Abrir catálogo completo sem filtros (tranquilo)">
-                    <span>Ver tudo sem filtros</span>
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <button onclick="skipWizard()" class="text-xs font-semibold text-slate-200 hover:text-white px-3.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] hover:border-purple-500/40 transition-all active:scale-95 flex items-center gap-2 shadow-sm" title="Abrir catálogo completo sem filtros (tranquilo)">
+                    <span>Ver tudo tranquilo</span>
+                    <span class="text-purple-400 font-bold text-[11px] px-1.5 py-0.5 rounded bg-purple-500/20">✕</span>
                 </button>
             </div>
         </header>
@@ -312,9 +376,10 @@
                 </button>
             </div>
             
-            <div class="text-center mt-2">
-                <button onclick="skipWizard()" class="text-[11px] text-slate-500 hover:text-slate-300 transition">
-                    Pular etapas e ver todo o catálogo sem filtros (tranquilo) ›
+            <div class="text-center mt-2.5">
+                <button onclick="skipWizard()" class="text-xs text-slate-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1.5 py-1">
+                    <span>Prefere explorar sem filtros?</span>
+                    <span class="font-semibold text-purple-300 underline decoration-purple-500/50 underline-offset-4">Ver tudo tranquilo (217 títulos) ›</span>
                 </button>
             </div>
         </div>
@@ -4572,10 +4637,9 @@
                 }
             });
 
-            // Initial view routing
+            // Initial view routing: ALWAYS start in 3-Step Discovery Wizard unless explicit #catalogo in URL
             const hash = window.location.hash;
-            const savedView = sessionStorage.getItem('cinevault_view');
-            if (hash === '#catalogo' || hash === '#catalog' || savedView === 'catalog') {
+            if (hash === '#catalogo' || hash === '#catalog') {
                 switchView('catalog', false, false);
             } else {
                 switchView('wizard', false, false);
@@ -4702,15 +4766,26 @@
             }).join('');
         }
 
-        function updateWizardUI() {
+        function updateWizardUI(direction = 'forward') {
             const p1 = document.getElementById('step-panel-1');
             const p2 = document.getElementById('step-panel-2');
             const p3 = document.getElementById('step-panel-3');
             if (!p1 || !p2 || !p3) return;
 
-            p1.classList.toggle('hidden', wizardState.step !== 1);
-            p2.classList.toggle('hidden', wizardState.step !== 2);
-            p3.classList.toggle('hidden', wizardState.step !== 3);
+            const panels = [p1, p2, p3];
+            const currentIdx = wizardState.step - 1;
+            const activePanel = panels[currentIdx];
+
+            panels.forEach((p, idx) => {
+                if (idx !== currentIdx) {
+                    p.classList.add('hidden');
+                    p.classList.remove('step-slide-right', 'step-slide-left');
+                }
+            });
+
+            activePanel.classList.remove('hidden', 'step-slide-right', 'step-slide-left');
+            void activePanel.offsetWidth; // Force DOM reflow to re-trigger CSS keyframes
+            activePanel.classList.add(direction === 'backward' ? 'step-slide-left' : 'step-slide-right');
 
             const titles = ["Formato da Sessão", "Gênero & Atmosfera", "Nível de Avaliação"];
             const summaries = ["Passo 1: Tipo", "Passo 2: Gênero", "Passo 3: Notas"];
@@ -4724,7 +4799,10 @@
             for (let i = 1; i <= 3; i++) {
                 const bar = document.getElementById(`prog-bar-${i}`);
                 if (bar) {
-                    bar.classList.toggle('bg-purple-500', i <= wizardState.step);
+                    bar.classList.toggle('bg-gradient-to-r', i <= wizardState.step);
+                    bar.classList.toggle('from-[#820AD1]', i <= wizardState.step);
+                    bar.classList.toggle('to-[#A855F7]', i <= wizardState.step);
+                    bar.classList.toggle('shadow-[0_0_12px_rgba(168,85,247,0.5)]', i === wizardState.step);
                     bar.classList.toggle('bg-white/[0.08]', i > wizardState.step);
                     bar.classList.toggle('cursor-pointer', i <= wizardMaxStepVisited);
                     bar.classList.toggle('cursor-not-allowed', i > wizardMaxStepVisited);
@@ -4804,13 +4882,14 @@
             } catch (e) {}
         }
 
-        function goToStep(s, updateHistory = true) {
+        function goToStep(s, updateHistory = true, direction = null) {
             if (s >= 1 && s <= 3) {
                 clearTimeout(wizardAdvanceTimer);
-                // Guard: cannot jump forward past uncompleted steps
                 if (s > wizardMaxStepVisited) return;
+                const prev = wizardState.step;
+                const dir = direction || (s >= prev ? 'forward' : 'backward');
                 wizardState.step = s;
-                updateWizardUI();
+                updateWizardUI(dir);
                 if (updateHistory) {
                     updateRoute('wizard', s, true);
                 }
@@ -4821,12 +4900,12 @@
         function selectWizardType(type, autoAdvance = true) {
             wizardState.type = type;
             if (wizardMaxStepVisited < 2) wizardMaxStepVisited = 2;
-            updateWizardUI();
+            updateWizardUI('forward');
             if (autoAdvance) {
                 clearTimeout(wizardAdvanceTimer);
                 wizardAdvanceTimer = setTimeout(() => {
-                    goToStep(2);
-                }, 220);
+                    goToStep(2, true, 'forward');
+                }, 240);
             }
         }
 
@@ -4838,18 +4917,18 @@
             }
             wizardState.genre = genre;
             if (wizardMaxStepVisited < 3) wizardMaxStepVisited = 3;
-            updateWizardUI();
+            updateWizardUI('forward');
             if (autoAdvance) {
                 clearTimeout(wizardAdvanceTimer);
                 wizardAdvanceTimer = setTimeout(() => {
-                    goToStep(3);
-                }, 220);
+                    goToStep(3, true, 'forward');
+                }, 240);
             }
         }
 
         function selectWizardRating(ratingChoice) {
             wizardState.ratingChoice = ratingChoice;
-            updateWizardUI();
+            updateWizardUI('forward');
         }
 
         function wizardNextStep() {
@@ -4857,10 +4936,7 @@
             if (wizardState.step < 3) {
                 const next = wizardState.step + 1;
                 if (wizardMaxStepVisited < next) wizardMaxStepVisited = next;
-                wizardState.step = next;
-                updateWizardUI();
-                updateRoute('wizard', next, true);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                goToStep(next, true, 'forward');
             } else {
                 const liveCount = getLiveMatchCount(wizardState.type, wizardState.genre, wizardState.ratingChoice);
                 if (liveCount === 0) {
@@ -4873,10 +4949,19 @@
         function wizardPrevStep() {
             clearTimeout(wizardAdvanceTimer);
             if (wizardState.step > 1) {
-                wizardState.step--;
-                updateWizardUI();
-                updateRoute('wizard', wizardState.step, true);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                goToStep(wizardState.step - 1, true, 'backward');
+            }
+        }
+
+        function triggerConfetti(x = 0.5, y = 0.5) {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 42,
+                    spread: 60,
+                    origin: { x, y },
+                    colors: ['#A855F7', '#820AD1', '#10B981', '#38BDF8', '#F59E0B'],
+                    disableForReducedMotion: true
+                });
             }
         }
 
@@ -4908,8 +4993,10 @@
             syncStyles();
             render();
 
+            triggerConfetti(0.5, 0.4);
+
             const count = getFilteredCatalog().length;
-            notify(`Assistente: ${count} títulos encontrados!`);
+            notify(`Sessão pronta: ${count} títulos encontrados!`);
         }
 
         function skipWizard() {
@@ -4938,17 +5025,21 @@
             if (!wView || !cView) return;
 
             if (viewName === 'wizard') {
-                wView.classList.remove('hidden');
+                wView.classList.remove('hidden', 'view-enter');
+                void wView.offsetWidth;
+                wView.classList.add('view-enter');
                 cView.classList.add('hidden');
                 sessionStorage.setItem('cinevault_view', 'wizard');
                 if (updateRouteHistory) {
                     updateRoute('wizard', wizardState.step, pushHistory);
                 }
-                updateWizardUI();
+                updateWizardUI('forward');
                 window.scrollTo({ top: 0, behavior: 'instant' });
             } else {
                 wView.classList.add('hidden');
-                cView.classList.remove('hidden');
+                cView.classList.remove('hidden', 'view-enter');
+                void cView.offsetWidth;
+                cView.classList.add('view-enter');
                 sessionStorage.setItem('cinevault_view', 'catalog');
                 if (updateRouteHistory) {
                     updateRoute('catalog', 1, pushHistory);
@@ -5230,14 +5321,14 @@
                                 </a>
 
                                 <div class="flex items-center gap-1.5">
-                                    <!-- 1-Click Watched Toggle Button -->
+                                    <!-- 1-Click Watched Toggle Button with Tactile Spring Pop -->
                                     ${isWatched ? `
-                                        <button onclick="setItemStatus('${item.id}', 'queue')" class="h-7 px-2.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium transition flex items-center gap-1" title="Clique para desmarcar como visto">
+                                        <button onclick="setItemStatus('${item.id}', 'queue', event); this.classList.add('spring-pop');" class="h-7 px-2.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium transition active:scale-95 flex items-center gap-1" title="Clique para desmarcar como visto">
                                             <svg class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                             <span>Visto</span>
                                         </button>
                                     ` : `
-                                        <button onclick="setItemStatus('${item.id}', 'watched')" class="h-7 px-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-emerald-500/30 text-slate-400 hover:text-emerald-300 text-[11px] font-medium transition flex items-center gap-1" title="Marcar como Visto com 1 clique">
+                                        <button onclick="setItemStatus('${item.id}', 'watched', event); this.classList.add('spring-pop');" class="h-7 px-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-emerald-500/30 text-slate-400 hover:text-emerald-300 text-[11px] font-medium transition active:scale-95 flex items-center gap-1" title="Marcar como Visto com 1 clique">
                                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                             <span>Marcar</span>
                                         </button>
@@ -5302,12 +5393,20 @@
             }
         }
 
-        function setItemStatus(id, newStatus) {
+        function setItemStatus(id, newStatus, event) {
             const item = catalog.find(i => i.id === id);
             if (!item) return;
             item.status = newStatus;
             persist();
             render();
+            if (newStatus === 'watched') {
+                let x = 0.5, y = 0.5;
+                if (event && event.clientX) {
+                    x = event.clientX / window.innerWidth;
+                    y = event.clientY / window.innerHeight;
+                }
+                triggerConfetti(x, y);
+            }
             const msgMap = { priority: 'Prioridade ★', queue: 'Na Fila', watched: 'Marcado como Visto ✓' };
             notify(`"${item.title}": ${msgMap[newStatus] || newStatus}`);
         }
