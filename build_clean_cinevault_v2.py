@@ -2,14 +2,18 @@
 """
 Builder for Cinevault App Experience with:
 - Step-by-Step Guided Discovery Wizard (Tipo -> Gênero -> Avaliação)
-- Real-time live match counter in each step
+- Real-time live match counter in each step with 100% catalog consistency
+- Smooth tactile step transitions with fluid auto-advance on selection
 - "Tranquilo" / "Sem Filtros" escape hatch to see full catalog with 1 click
-- Concierge banner in catalog view with 1-click refazer or limpar
-- Header & Mobile Bottom Dock with quick access to Assistente
+- Unified Concierge banner with interactive dismissable chips for every active filter
+- Independent Format (Tudo/Filmes/Séries) and Status (Todos/Prioridades/Na Fila/Concluídos) filters
+- Full browser history routing & mobile back-gesture support (popstate/hashchange)
+- Fixed mobile bottom dock styles (no hardcoded purple override on child elements)
+- Filter modal enriched with Formato and Década sections
+- Safe series genre selection (no dead-end zero-match traps)
 - Direct status selection dropdown (Priority, Queue, Watched)
 - 1-click instant 'Marcar como Visto' button
-- Rich genres & intuitive separation
-- Accurate Brazilian streaming platforms + 'Ver plataforma' button
+- Accurate Brazilian streaming platforms + JustWatch links
 - Full compatibility with all 217 items
 """
 
@@ -126,20 +130,25 @@ HTML_PAGE = """<!DOCTYPE html>
             position: relative;
         }
         @media (hover: hover) and (pointer: fine) {
-            .wizard-card:hover {
+            .wizard-card:hover:not(.disabled) {
                 border-color: rgba(168, 85, 247, 0.4);
                 background: #131724;
                 transform: translateY(-2px);
                 box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5), 0 0 20px -8px rgba(130, 10, 209, 0.25);
             }
         }
-        .wizard-card:active {
+        .wizard-card:active:not(.disabled) {
             transform: scale(0.98);
         }
         .wizard-card.selected {
             border-color: #A855F7 !important;
             background: linear-gradient(135deg, rgba(130, 10, 209, 0.18) 0%, rgba(18, 22, 34, 0.96) 100%) !important;
             box-shadow: 0 0 24px -4px rgba(130, 10, 209, 0.4) !important;
+        }
+        .wizard-card.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-style: dashed;
         }
 
         /* Animation between steps */
@@ -202,7 +211,7 @@ HTML_PAGE = """<!DOCTYPE html>
             <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
                 
                 <!-- Brand -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="goToStep(1)">
                     <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#820AD1] to-[#6D28D9] flex items-center justify-center shadow-md border border-white/20">
                         <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
@@ -221,7 +230,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
 
                 <!-- Escape Hatch (Ver tudo sem filtros / tranquilo) -->
-                <button onclick="skipWizard()" class="text-xs font-medium text-slate-300 hover:text-white px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition active:scale-95 flex items-center gap-1.5" title="Abrir catálogo completo">
+                <button onclick="skipWizard()" class="text-xs font-medium text-slate-300 hover:text-white px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition active:scale-95 flex items-center gap-1.5" title="Abrir catálogo completo sem filtros (tranquilo)">
                     <span>Ver tudo sem filtros</span>
                     <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
@@ -229,18 +238,18 @@ HTML_PAGE = """<!DOCTYPE html>
         </header>
 
         <!-- Main Wizard Content -->
-        <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 pb-28">
+        <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 pb-36">
             
             <!-- Step Progress Indicator -->
             <div class="max-w-xl mx-auto mb-6 sm:mb-8">
                 <div class="flex items-center justify-between mb-2.5 text-xs font-mono">
                     <div class="flex items-center gap-2">
-                        <span id="wizard-step-badge" class="px-2 py-0.5 rounded-md bg-purple-600/30 text-purple-300 font-mono text-[11px] border border-purple-500/40">1 / 3</span>
+                        <span id="wizard-step-badge" class="px-2 py-0.5 rounded-md bg-purple-600/30 text-purple-300 font-mono text-[11px] border border-purple-500/40">Passo 1 de 3</span>
                         <span id="wizard-step-title-header" class="text-white font-semibold">Formato da Sessão</span>
                     </div>
                     <span id="wizard-progress-summary" class="text-[11px] font-mono text-slate-400">Passo 1: Tipo</span>
                 </div>
-                <!-- 3 Segmented Bars (Clickable to jump back) -->
+                <!-- 3 Segmented Bars (Clickable to jump to visited steps) -->
                 <div class="grid grid-cols-3 gap-2">
                     <div id="prog-bar-1" onclick="goToStep(1)" class="h-1.5 rounded-full bg-purple-500 transition-all duration-300 cursor-pointer" title="Passo 1: Formato"></div>
                     <div id="prog-bar-2" onclick="goToStep(2)" class="h-1.5 rounded-full bg-white/[0.08] transition-all duration-300 cursor-pointer" title="Passo 2: Gênero"></div>
@@ -311,7 +320,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5" id="wizard-genre-grid">
-                    <!-- Injected dynamically with live counts -->
+                    <!-- Injected dynamically with live counts & disabled states -->
                 </div>
             </div>
 
@@ -323,14 +332,14 @@ HTML_PAGE = """<!DOCTYPE html>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="wizard-ratings-grid">
-                    <!-- Injected dynamically with live counts -->
+                    <!-- Injected dynamically with exact synchronized live counts -->
                 </div>
             </div>
 
         </main>
 
         <!-- Wizard Sticky Bottom Action Bar -->
-        <div class="sticky bottom-0 z-30 bg-[#090A0F]/95 backdrop-blur-xl border-t border-white/[0.08] py-3 px-4 bottom-nav-safe">
+        <div class="sticky bottom-0 z-30 bg-[#090A0F]/95 backdrop-blur-xl border-t border-white/[0.08] py-3 px-4 bottom-nav-safe shadow-2xl">
             <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
                 
                 <!-- Back Button -->
@@ -374,7 +383,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 <div class="h-16 flex items-center justify-between gap-3">
                     
                     <!-- Brand -->
-                    <div class="flex items-center gap-3 shrink-0 cursor-pointer" onclick="openWizard()">
+                    <div class="flex items-center gap-3 shrink-0 cursor-pointer" onclick="openWizard(1)">
                         <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#820AD1] to-[#6D28D9] flex items-center justify-center shadow-md border border-white/20">
                             <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
@@ -410,8 +419,8 @@ HTML_PAGE = """<!DOCTYPE html>
                     <!-- Actions -->
                     <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                         
-                        <!-- NEW: Assistente de Etapas Button -->
-                        <button onclick="openWizard()" class="h-9 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-xs font-semibold text-purple-200 transition flex items-center gap-1.5 shadow-sm active:scale-95" title="Assistente de Escolha em Etapas">
+                        <!-- Assistente de Etapas Button -->
+                        <button onclick="openWizard(1)" class="h-9 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-xs font-semibold text-purple-200 transition flex items-center gap-1.5 shadow-sm active:scale-95" title="Assistente de Escolha em Etapas">
                             <svg class="w-3.5 h-3.5 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                             <span class="hidden md:inline">Assistente</span>
                         </button>
@@ -449,28 +458,44 @@ HTML_PAGE = """<!DOCTYPE html>
                     </div>
                 </div>
 
-                <!-- Sub-Navigation: Primary Status Tabs & Quiet Progress -->
+                <!-- Sub-Navigation: Independent Format Segment & Status Tabs -->
                 <div class="py-2.5 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar border-t border-white/[0.04]">
-                    <div class="flex items-center gap-1.5 text-xs font-medium shrink-0">
-                        <button onclick="setStatusFilter('all')" data-tab="all" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition">
-                            Todos <span data-tab-count="all" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
-                        </button>
-                        <button onclick="setStatusFilter('priority')" data-tab="priority" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                            <span>Prioridades</span>
-                            <span data-tab-count="priority" class="text-amber-400/80 font-mono text-[11px]">0</span>
-                        </button>
-                        <button onclick="setStatusFilter('queue')" data-tab="queue" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition">
-                            Na Fila <span data-tab-count="queue" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
-                        </button>
-                        <button onclick="setStatusFilter('watched')" data-tab="watched" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                            <span>Concluídos</span>
-                            <span data-tab-count="watched" class="text-emerald-400/80 font-mono text-[11px]">0</span>
-                        </button>
-                        <button onclick="setTypeFilter('series')" data-tab="series" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition">
-                            Séries <span data-tab-count="series" class="text-purple-400/80 font-mono text-[11px] ml-1">0</span>
-                        </button>
+                    <div class="flex items-center gap-2 shrink-0">
+                        
+                        <!-- Format Segment: [ Tudo | Filmes | Séries ] -->
+                        <div class="flex items-center bg-white/[0.04] p-0.5 rounded-full border border-white/[0.08] shrink-0 text-xs font-medium">
+                            <button onclick="setTypeFilter('all')" data-format-tab="all" class="format-pill px-3 py-1 rounded-full transition text-slate-300 hover:text-white">
+                                Tudo <span data-format-count="all" class="font-mono text-[10px] opacity-70 ml-0.5">217</span>
+                            </button>
+                            <button onclick="setTypeFilter('movie')" data-format-tab="movie" class="format-pill px-3 py-1 rounded-full transition text-slate-300 hover:text-white">
+                                🎬 Filmes <span data-format-count="movie" class="font-mono text-[10px] opacity-70 ml-0.5">203</span>
+                            </button>
+                            <button onclick="setTypeFilter('series')" data-format-tab="series" class="format-pill px-3 py-1 rounded-full transition text-slate-300 hover:text-white">
+                                📺 Séries <span data-format-count="series" class="font-mono text-[10px] opacity-70 ml-0.5">14</span>
+                            </button>
+                        </div>
+
+                        <div class="h-4 w-px bg-white/[0.08] shrink-0"></div>
+
+                        <!-- Status Tabs: [ Todos | Prioridades | Na Fila | Concluídos ] -->
+                        <div class="flex items-center gap-1 text-xs font-medium shrink-0">
+                            <button onclick="setStatusFilter('all')" data-tab="all" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition">
+                                Todos <span data-tab-count="all" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
+                            </button>
+                            <button onclick="setStatusFilter('priority')" data-tab="priority" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                <span>Prioridades</span>
+                                <span data-tab-count="priority" class="text-amber-400/80 font-mono text-[11px]">0</span>
+                            </button>
+                            <button onclick="setStatusFilter('queue')" data-tab="queue" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition">
+                                Na Fila <span data-tab-count="queue" class="text-slate-500 font-mono text-[11px] ml-1">0</span>
+                            </button>
+                            <button onclick="setStatusFilter('watched')" data-tab="watched" class="tab-pill px-3 py-1.5 rounded-full text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                <span>Concluídos</span>
+                                <span data-tab-count="watched" class="text-emerald-400/80 font-mono text-[11px]">0</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-3 shrink-0 text-xs">
@@ -540,39 +565,33 @@ HTML_PAGE = """<!DOCTYPE html>
         <!-- ================= MAIN CATALOG CONTENT ================= -->
         <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-safe">
 
-            <!-- Concierge Active Banner -->
-            <div id="wizard-active-banner" class="hidden mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-[#0F1118] to-[#0F1118] border border-purple-500/25 flex flex-wrap items-center justify-between gap-3 shadow-lg shadow-purple-950/20">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-white">Assistente de Escolha Ativo</span>
-                            <span id="wizard-banner-count" class="text-[11px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300">0 obras</span>
+            <!-- Unified Concierge Active Discovery Banner with Dismissable Chips -->
+            <div id="wizard-active-banner" class="hidden mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-[#0F1118] to-[#0F1118] border border-purple-500/25 shadow-lg shadow-purple-950/20">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <div class="w-7 h-7 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                         </div>
-                        <span id="wizard-banner-desc" class="text-xs text-slate-400">Filtros aplicados em etapas</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white">Assistente de Escolha</span>
+                            <span id="wizard-banner-count" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">0 obras</span>
+                        </div>
+                        <!-- Removable filter chips container -->
+                        <div id="wizard-chips-container" class="flex items-center gap-1.5 flex-wrap">
+                            <!-- Injected dynamically: [Filmes ✕], [Drama ✕], [IMDb 8.0+ ✕] -->
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 ml-auto shrink-0">
+                        <button onclick="openWizard(1)" class="h-8 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-xs font-medium text-purple-200 transition active:scale-95 flex items-center gap-1.5" title="Refazer escolha em etapas">
+                            <svg class="w-3 h-3 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                            <span>Refazer etapas</span>
+                        </button>
+                        <button onclick="resetAllFilters()" class="h-8 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-300 hover:text-white transition active:scale-95 flex items-center gap-1.5" title="Remover filtros e ver todo o catálogo tranquilo">
+                            <span>Ver tudo tranquilo</span>
+                            <span class="text-slate-500 text-[11px]">✕</span>
+                        </button>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 ml-auto">
-                    <button onclick="openWizard()" class="h-8 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-xs font-medium text-purple-200 transition active:scale-95 flex items-center gap-1.5">
-                        <svg class="w-3 h-3 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                        <span>Refazer etapas</span>
-                    </button>
-                    <button onclick="resetAllFilters()" class="h-8 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-300 hover:text-white transition active:scale-95">
-                        Ver tudo sem filtros ✕
-                    </button>
-                </div>
-            </div>
-
-            <!-- Active Filter Indicator -->
-            <div id="active-filters-bar" class="hidden mb-4 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs">
-                <div class="flex items-center gap-2 flex-wrap" id="active-chips-container">
-                    <!-- Injected dynamically -->
-                </div>
-                <button onclick="resetAllFilters()" class="text-[11px] text-purple-400 hover:text-purple-300 font-medium ml-2 shrink-0">
-                    Limpar todos
-                </button>
             </div>
 
             <!-- 1. Grid View (Clean Cards) -->
@@ -593,11 +612,11 @@ HTML_PAGE = """<!DOCTYPE html>
                 <h3 class="text-sm font-semibold text-white mb-1">Nenhum título encontrado</h3>
                 <p class="text-xs text-slate-400 max-w-xs mx-auto mb-4">Nenhum filme ou série corresponde aos critérios selecionados.</p>
                 <div class="flex items-center justify-center gap-2">
-                    <button onclick="openWizard()" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-medium text-white transition active:scale-95">
+                    <button onclick="openWizard(1)" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-medium text-white transition active:scale-95">
                         Refazer no Assistente
                     </button>
                     <button onclick="resetAllFilters()" class="px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.12] text-xs font-medium text-white transition">
-                        Ver Catálogo Completo
+                        Ver Catálogo Completo (Tranquilo)
                     </button>
                 </div>
             </div>
@@ -608,30 +627,30 @@ HTML_PAGE = """<!DOCTYPE html>
         <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[#090A0F]/90 backdrop-blur-xl border-t border-white/[0.06] bottom-nav-safe">
             <div class="grid grid-cols-5 h-14 max-w-md mx-auto items-center">
                 <!-- Assistente -->
-                <button onclick="openWizard()" data-bnav="wizard" class="flex flex-col items-center justify-center gap-1 text-purple-300 transition">
-                    <svg class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                    <span class="text-[10px] font-semibold text-purple-300">Assistente</span>
+                <button onclick="openWizard(1)" data-bnav="wizard" class="flex flex-col items-center justify-center gap-1 text-slate-400 transition" aria-label="Assistente">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span class="text-[10px] font-semibold">Assistente</span>
                 </button>
                 <!-- Catálogo -->
-                <button onclick="showCatalog(); setStatusFilter('all');" data-bnav="catalog" class="flex flex-col items-center justify-center gap-1 text-slate-400 transition">
+                <button onclick="showCatalog(); setStatusFilter('all');" data-bnav="catalog" class="flex flex-col items-center justify-center gap-1 text-slate-400 transition" aria-label="Catálogo">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     <span class="text-[10px]">Catálogo</span>
                 </button>
                 <!-- Center Sorteador Button -->
-                <button onclick="openRandomizerModal()" class="flex flex-col items-center justify-center gap-1 text-purple-300">
+                <button onclick="openRandomizerModal()" class="flex flex-col items-center justify-center gap-1 text-purple-300" aria-label="Sortear">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#820AD1] to-[#6D28D9] text-white flex items-center justify-center shadow-md border border-white/20 -mt-3 active:scale-95 transition">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
                     </div>
                     <span class="text-[10px] font-semibold text-purple-300">Sortear</span>
                 </button>
                 <!-- Filtros -->
-                <button onclick="openFilterModal()" class="relative flex flex-col items-center justify-center gap-1 text-slate-400 transition">
+                <button onclick="openFilterModal()" class="relative flex flex-col items-center justify-center gap-1 text-slate-400 transition" aria-label="Filtros">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                     <span class="text-[10px]">Filtros</span>
                     <span id="bnav-filter-dot" class="hidden absolute top-2 right-4 w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_6px_#A855F7]"></span>
                 </button>
                 <!-- Vistos -->
-                <button onclick="showCatalog(); setStatusFilter('watched');" data-bnav="watched" class="flex flex-col items-center justify-center gap-1 text-slate-400 transition">
+                <button onclick="showCatalog(); setStatusFilter('watched');" data-bnav="watched" class="flex flex-col items-center justify-center gap-1 text-slate-400 transition" aria-label="Vistos">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     <span class="text-[10px]">Vistos</span>
                 </button>
@@ -655,6 +674,17 @@ HTML_PAGE = """<!DOCTYPE html>
             </div>
 
             <div class="px-5 py-4 overflow-y-auto space-y-4 no-scrollbar text-xs">
+                
+                <!-- Formato -->
+                <div>
+                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block mb-2">Formato</label>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="setTypeFilter('all')" data-m-type="all" class="m-pill px-3 py-1.5 rounded-lg border text-xs transition">Todos</button>
+                        <button onclick="setTypeFilter('movie')" data-m-type="movie" class="m-pill px-3 py-1.5 rounded-lg border text-xs transition">🎬 Filmes</button>
+                        <button onclick="setTypeFilter('series')" data-m-type="series" class="m-pill px-3 py-1.5 rounded-lg border text-xs transition">📺 Séries</button>
+                    </div>
+                </div>
+
                 <!-- Status -->
                 <div>
                     <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block mb-2">Status</label>
@@ -729,6 +759,17 @@ HTML_PAGE = """<!DOCTYPE html>
                             <button onclick="setRtAudience('fresh')" data-m-rtaudience="fresh" class="m-pill py-1.5 px-2.5 rounded-lg border text-left transition text-amber-200">Aprovado (≥60%)</button>
                             <button onclick="setRtAudience('high')" data-m-rtaudience="high" class="m-pill py-1.5 px-2.5 rounded-lg border text-left transition text-amber-200">Favorito (≥85%)</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Década de Lançamento -->
+                <div>
+                    <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block mb-2">Década de Lançamento</label>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button onclick="setDecadeFilter('all')" data-m-decade="all" class="m-pill py-1.5 rounded-lg border text-center transition">Todas</button>
+                        <button onclick="setDecadeFilter('2020s')" data-m-decade="2020s" class="m-pill py-1.5 rounded-lg border text-center transition">Anos 2020</button>
+                        <button onclick="setDecadeFilter('2010s')" data-m-decade="2010s" class="m-pill py-1.5 rounded-lg border text-center transition">Anos 2010</button>
+                        <button onclick="setDecadeFilter('classic')" data-m-decade="classic" class="m-pill py-1.5 rounded-lg border text-center transition">&lt; 2010</button>
                     </div>
                 </div>
             </div>
@@ -951,6 +992,8 @@ HTML_PAGE = """<!DOCTYPE html>
             genre: 'all',
             ratingChoice: 'all'
         };
+        let wizardMaxStepVisited = 1;
+        let wizardAdvanceTimer = null;
 
         const WIZARD_GENRES = [
             { id: 'Suspense & Mistério', label: 'Suspense & Mistério', icon: '🔍', desc: 'Reviravoltas e enigmas' },
@@ -990,24 +1033,24 @@ HTML_PAGE = """<!DOCTYPE html>
                 title: 'Aclamados pela Crítica',
                 tag: '🍅 Rotten ≥ 75%',
                 tagClass: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-                desc: 'Selo Certified Fresh do consenso internacional.',
+                desc: 'Selo Certified Fresh do consenso dos críticos.',
                 icon: '🍅'
             },
             {
                 id: 'rt_audience',
                 title: 'Favoritos do Público',
-                tag: '🍿 Popcorn ≥ 80%',
+                tag: '🍿 Popcorn ≥ 85%',
                 tagClass: 'bg-amber-300/15 text-amber-200 border-amber-300/30',
                 desc: 'Aprovados com honras pelas grandes multidões.',
                 icon: '🍿'
             },
             {
                 id: 'imdb_7',
-                title: 'Recomendados Gerais',
+                title: 'Bem Avaliados',
                 tag: 'IMDb ★ 7.0+',
                 tagClass: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-                desc: 'Histórias sólidas com avaliação consistente.',
-                icon: '🎯'
+                desc: 'Histórias sólidas que valem a sua sessão.',
+                icon: '👍'
             },
             {
                 id: 'all',
@@ -1015,7 +1058,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 tag: 'Sem filtro',
                 tagClass: 'bg-white/10 text-slate-300 border-white/20',
                 desc: 'Ver todas as obras do gênero sem restrição de nota.',
-                icon: '🎬'
+                icon: '✨'
             }
         ];
 
@@ -1072,7 +1115,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
                     e.preventDefault();
                     if (document.getElementById('catalog-view').classList.contains('hidden')) {
-                        switchView('catalog');
+                        switchView('catalog', true);
                     }
                     setTimeout(() => document.getElementById('search-input')?.focus(), 50);
                 }
@@ -1080,13 +1123,39 @@ HTML_PAGE = """<!DOCTYPE html>
 
             document.addEventListener('click', () => closeAllStatusDropdowns());
 
-            // Check view routing
+            // Listen to browser Back/Forward gestures and history pop
+            window.addEventListener('popstate', (e) => {
+                const fm = document.getElementById('filter-modal');
+                if (fm && !fm.classList.contains('hidden')) { closeFilterModal(); return; }
+                const rm = document.getElementById('randomizer-modal');
+                if (rm && !rm.classList.contains('hidden')) { closeRandomizerModal(); return; }
+                const em = document.getElementById('entry-modal');
+                if (em && !em.classList.contains('hidden')) { closeAddModal(); return; }
+                const xm = document.getElementById('export-modal');
+                if (xm && !xm.classList.contains('hidden')) { closeExportModal(); return; }
+
+                const hash = window.location.hash;
+                if (hash === '#catalogo' || hash === '#catalog') {
+                    switchView('catalog', false, false);
+                } else if (hash.startsWith('#assistente')) {
+                    let step = 1;
+                    if (hash.includes('passo-2')) step = 2;
+                    else if (hash.includes('passo-3')) step = 3;
+                    wizardState.step = step;
+                    switchView('wizard', false, false);
+                    updateWizardUI();
+                } else {
+                    switchView('wizard', false, false);
+                }
+            });
+
+            // Initial view routing
             const hash = window.location.hash;
             const savedView = sessionStorage.getItem('cinevault_view');
-            if (hash === '#catalog' || savedView === 'catalog') {
-                switchView('catalog', false);
+            if (hash === '#catalogo' || hash === '#catalog' || savedView === 'catalog') {
+                switchView('catalog', false, false);
             } else {
-                switchView('wizard', false);
+                switchView('wizard', false, false);
             }
 
             syncStyles();
@@ -1129,7 +1198,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 if (wRating === 'imdb_75' && (!item.imdb || item.imdb < 7.5)) return false;
                 if (wRating === 'imdb_7' && (!item.imdb || item.imdb < 7.0)) return false;
                 if (wRating === 'rt_critics' && (!item.rtCritics || item.rtCritics < 75)) return false;
-                if (wRating === 'rt_audience' && (!item.rtAudience || item.rtAudience < 80)) return false;
+                if (wRating === 'rt_audience' && (!item.rtAudience || item.rtAudience < 85)) return false;
                 return true;
             }).length;
         }
@@ -1138,17 +1207,34 @@ HTML_PAGE = """<!DOCTYPE html>
             const grid = document.getElementById('wizard-genre-grid');
             if (!grid) return;
             const formatLabel = wizardState.type === 'movie' ? 'filmes' : (wizardState.type === 'series' ? 'séries' : 'obras');
-            grid.innerHTML = WIZARD_GENRES.map(g => {
+            
+            // For series, sort genres with available series first
+            const genresList = [...WIZARD_GENRES];
+            if (wizardState.type === 'series') {
+                genresList.sort((a, b) => {
+                    const cA = getLiveMatchCount('series', a.id, 'all');
+                    const cB = getLiveMatchCount('series', b.id, 'all');
+                    if (a.id === 'all') return 1;
+                    if (b.id === 'all') return -1;
+                    return cB - cA;
+                });
+            }
+
+            grid.innerHTML = genresList.map(g => {
                 const count = getLiveMatchCount(wizardState.type, g.id, 'all');
                 const isSelected = wizardState.genre === g.id;
+                const isDisabled = count === 0 && g.id !== 'all';
                 const selectedClass = isSelected ? 'selected' : '';
-                const countClass = count > 0 ? 'text-purple-300' : 'text-slate-600';
+                const disabledClass = isDisabled ? 'disabled' : '';
+                const countClass = count > 0 ? 'text-purple-300 font-semibold' : 'text-slate-600';
+                
                 return `
-                    <div onclick="selectWizardGenre('${g.id}')" data-w-genre="${g.id}" class="wizard-card p-3 sm:p-3.5 flex flex-col justify-between ${selectedClass}">
+                    <div onclick="selectWizardGenre('${g.id}')" data-w-genre="${g.id}" class="wizard-card p-3 sm:p-3.5 flex flex-col justify-between ${selectedClass} ${disabledClass}">
                         <div>
                             <div class="flex items-center justify-between gap-1 mb-1.5">
                                 <span class="text-xl sm:text-2xl">${g.icon}</span>
-                                ${isSelected ? '<span class="w-4 h-4 rounded-full bg-purple-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>' : ''}
+                                ${isSelected ? '<span class="w-4 h-4 rounded-full bg-purple-500 text-white flex items-center justify-center text-[10px] font-bold shadow-[0_0_8px_#A855F7]">✓</span>' : ''}
+                                ${isDisabled ? '<span class="text-[9px] font-mono px-1 rounded bg-white/[0.04] text-slate-500">Sem obras</span>' : ''}
                             </div>
                             <h4 class="font-bold text-xs sm:text-sm text-white leading-tight mb-0.5">${escapeHtml(g.label)}</h4>
                             <p class="text-[11px] text-slate-400 leading-snug line-clamp-1">${escapeHtml(g.desc)}</p>
@@ -1170,7 +1256,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 const count = getLiveMatchCount(wizardState.type, wizardState.genre, r.id);
                 const isSelected = wizardState.ratingChoice === r.id;
                 const selectedClass = isSelected ? 'selected' : '';
-                const countClass = count > 0 ? 'text-purple-300' : 'text-slate-600';
+                const countClass = count > 0 ? 'text-purple-300 font-semibold' : 'text-slate-600';
                 return `
                     <div onclick="selectWizardRating('${r.id}')" data-w-rating="${r.id}" class="wizard-card p-4 flex flex-col justify-between ${selectedClass}">
                         <div>
@@ -1179,7 +1265,7 @@ HTML_PAGE = """<!DOCTYPE html>
                                     <span class="text-2xl">${r.icon}</span>
                                     <span class="px-2 py-0.5 rounded-lg text-[10px] font-mono border ${r.tagClass}">${r.tag}</span>
                                 </div>
-                                ${isSelected ? '<span class="w-4 h-4 rounded-full bg-purple-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>' : ''}
+                                ${isSelected ? '<span class="w-4 h-4 rounded-full bg-purple-500 text-white flex items-center justify-center text-[10px] font-bold shadow-[0_0_8px_#A855F7]">✓</span>' : ''}
                             </div>
                             <h4 class="font-bold text-sm text-white mb-1">${escapeHtml(r.title)}</h4>
                             <p class="text-xs text-slate-400 leading-relaxed">${escapeHtml(r.desc)}</p>
@@ -1208,7 +1294,7 @@ HTML_PAGE = """<!DOCTYPE html>
             const sb = document.getElementById('wizard-step-badge');
             const th = document.getElementById('wizard-step-title-header');
             const ps = document.getElementById('wizard-progress-summary');
-            if (sb) sb.textContent = `${wizardState.step} / 3`;
+            if (sb) sb.textContent = `Passo ${wizardState.step} de 3`;
             if (th) th.textContent = titles[wizardState.step - 1];
             if (ps) ps.textContent = summaries[wizardState.step - 1];
 
@@ -1217,6 +1303,8 @@ HTML_PAGE = """<!DOCTYPE html>
                 if (bar) {
                     bar.classList.toggle('bg-purple-500', i <= wizardState.step);
                     bar.classList.toggle('bg-white/[0.08]', i > wizardState.step);
+                    bar.classList.toggle('cursor-pointer', i <= wizardMaxStepVisited);
+                    bar.classList.toggle('cursor-not-allowed', i > wizardMaxStepVisited);
                 }
             }
 
@@ -1259,7 +1347,7 @@ HTML_PAGE = """<!DOCTYPE html>
             const liveText = document.getElementById('wizard-live-match-text');
             if (liveText) {
                 if (liveCount === 0) {
-                    liveText.textContent = '0 obras com este filtro restrito';
+                    liveText.textContent = '0 obras com este filtro';
                     liveText.classList.add('text-amber-300');
                 } else {
                     liveText.textContent = `${liveCount} títulos combinam`;
@@ -1271,9 +1359,9 @@ HTML_PAGE = """<!DOCTYPE html>
             if (nextText) {
                 if (wizardState.step === 3) {
                     if (liveCount > 0) {
-                        nextText.textContent = `Ver ${liveCount} Obras`;
+                        nextText.textContent = `Ver ${liveCount} Obras ›`;
                     } else {
-                        nextText.textContent = 'Ver Obras do Gênero';
+                        nextText.textContent = 'Ver Obras do Gênero ›';
                     }
                 } else {
                     nextText.textContent = 'Continuar';
@@ -1281,22 +1369,59 @@ HTML_PAGE = """<!DOCTYPE html>
             }
         }
 
-        function goToStep(s) {
+        function updateRoute(viewName, step = 1, push = true) {
+            const hash = viewName === 'wizard' ? (step === 1 ? '#assistente' : `#assistente/passo-${step}`) : '#catalogo';
+            if (window.location.hash === hash) return;
+            try {
+                if (push) {
+                    history.pushState({ view: viewName, step }, '', hash);
+                } else {
+                    history.replaceState({ view: viewName, step }, '', hash);
+                }
+            } catch (e) {}
+        }
+
+        function goToStep(s, updateHistory = true) {
             if (s >= 1 && s <= 3) {
+                clearTimeout(wizardAdvanceTimer);
+                // Guard: cannot jump forward past uncompleted steps
+                if (s > wizardMaxStepVisited) return;
                 wizardState.step = s;
                 updateWizardUI();
+                if (updateHistory) {
+                    updateRoute('wizard', s, true);
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
-        function selectWizardType(type) {
+        function selectWizardType(type, autoAdvance = true) {
             wizardState.type = type;
+            if (wizardMaxStepVisited < 2) wizardMaxStepVisited = 2;
             updateWizardUI();
+            if (autoAdvance) {
+                clearTimeout(wizardAdvanceTimer);
+                wizardAdvanceTimer = setTimeout(() => {
+                    goToStep(2);
+                }, 220);
+            }
         }
 
-        function selectWizardGenre(genre) {
+        function selectWizardGenre(genre, autoAdvance = true) {
+            const count = getLiveMatchCount(wizardState.type, genre, 'all');
+            if (count === 0 && genre !== 'all') {
+                notify(`Não há obras cadastradas em "${genre}" para este formato.`);
+                return;
+            }
             wizardState.genre = genre;
+            if (wizardMaxStepVisited < 3) wizardMaxStepVisited = 3;
             updateWizardUI();
+            if (autoAdvance) {
+                clearTimeout(wizardAdvanceTimer);
+                wizardAdvanceTimer = setTimeout(() => {
+                    goToStep(3);
+                }, 220);
+            }
         }
 
         function selectWizardRating(ratingChoice) {
@@ -1305,9 +1430,13 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         function wizardNextStep() {
+            clearTimeout(wizardAdvanceTimer);
             if (wizardState.step < 3) {
-                wizardState.step++;
+                const next = wizardState.step + 1;
+                if (wizardMaxStepVisited < next) wizardMaxStepVisited = next;
+                wizardState.step = next;
                 updateWizardUI();
+                updateRoute('wizard', next, true);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 const liveCount = getLiveMatchCount(wizardState.type, wizardState.genre, wizardState.ratingChoice);
@@ -1319,9 +1448,11 @@ HTML_PAGE = """<!DOCTYPE html>
         }
 
         function wizardPrevStep() {
+            clearTimeout(wizardAdvanceTimer);
             if (wizardState.step > 1) {
                 wizardState.step--;
                 updateWizardUI();
+                updateRoute('wizard', wizardState.step, true);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
@@ -1350,7 +1481,7 @@ HTML_PAGE = """<!DOCTYPE html>
                 state.rtAudience = 'high';
             }
 
-            switchView('catalog');
+            switchView('catalog', true, true);
             syncStyles();
             render();
 
@@ -1360,20 +1491,25 @@ HTML_PAGE = """<!DOCTYPE html>
 
         function skipWizard() {
             resetAllFilters();
-            switchView('catalog');
-            notify("Exibindo catálogo completo sem filtros (217 títulos)");
+            switchView('catalog', true, true);
+            notify("Exibindo catálogo completo sem filtros (tranquilo)");
         }
 
-        function openWizard() {
-            switchView('wizard');
+        function openWizard(step = 1) {
+            clearTimeout(wizardAdvanceTimer);
+            wizardState.step = step;
+            if (step === 1) {
+                wizardMaxStepVisited = Math.max(wizardMaxStepVisited, 1);
+            }
+            switchView('wizard', true, true);
             updateWizardUI();
         }
 
         function showCatalog() {
-            switchView('catalog');
+            switchView('catalog', true, true);
         }
 
-        function switchView(viewName, updateHash = true) {
+        function switchView(viewName, updateRouteHistory = true, pushHistory = true) {
             const wView = document.getElementById('wizard-view');
             const cView = document.getElementById('catalog-view');
             if (!wView || !cView) return;
@@ -1381,19 +1517,19 @@ HTML_PAGE = """<!DOCTYPE html>
             if (viewName === 'wizard') {
                 wView.classList.remove('hidden');
                 cView.classList.add('hidden');
-                if (updateHash) {
-                    try { history.replaceState(null, '', '#assistente'); } catch (e) {}
-                }
                 sessionStorage.setItem('cinevault_view', 'wizard');
+                if (updateRouteHistory) {
+                    updateRoute('wizard', wizardState.step, pushHistory);
+                }
                 updateWizardUI();
                 window.scrollTo({ top: 0, behavior: 'instant' });
             } else {
                 wView.classList.add('hidden');
                 cView.classList.remove('hidden');
-                if (updateHash) {
-                    try { history.replaceState(null, '', '#catalog'); } catch (e) {}
-                }
                 sessionStorage.setItem('cinevault_view', 'catalog');
+                if (updateRouteHistory) {
+                    updateRoute('catalog', 1, pushHistory);
+                }
                 syncStyles();
                 render();
                 window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1478,13 +1614,9 @@ HTML_PAGE = """<!DOCTYPE html>
             if (isHidden) menu.classList.remove('hidden');
         }
 
-        function render() {
-            const list = getFilteredCatalog();
+        function updateTelemetryAndFilters(list) {
             const total = catalog.length;
             const watched = catalog.filter(i => i.status === 'watched').length;
-            const priority = catalog.filter(i => i.status === 'priority').length;
-            const queue = catalog.filter(i => i.status === 'queue').length;
-            const series = catalog.filter(i => i.type === 'series').length;
             const pct = total > 0 ? Math.round((watched / total) * 100) : 0;
 
             const telText = document.getElementById('telemetry-text');
@@ -1492,62 +1624,86 @@ HTML_PAGE = """<!DOCTYPE html>
             if (telText) telText.textContent = `${watched} de ${total} assistidos (${pct}%)`;
             if (telBar) telBar.style.width = `${pct}%`;
 
-            const countMap = { all: total, priority, queue, watched, series };
+            // Format counts
+            const mCount = catalog.filter(i => i.type === 'movie').length;
+            const sCount = catalog.filter(i => i.type === 'series').length;
+            const fmtCountMap = { all: total, movie: mCount, series: sCount };
+            document.querySelectorAll('[data-format-count]').forEach(el => {
+                const f = el.getAttribute('data-format-count');
+                if (fmtCountMap[f] !== undefined) el.textContent = fmtCountMap[f];
+            });
+
+            // Status counts respecting current format
+            const scopedCatalog = state.type === 'all' ? catalog : catalog.filter(i => i.type === state.type);
+            const pScoped = scopedCatalog.filter(i => i.status === 'priority').length;
+            const qScoped = scopedCatalog.filter(i => i.status === 'queue').length;
+            const wScoped = scopedCatalog.filter(i => i.status === 'watched').length;
+            const statusCountMap = { all: scopedCatalog.length, priority: pScoped, queue: qScoped, watched: wScoped };
             document.querySelectorAll('[data-tab-count]').forEach(el => {
-                const k = el.getAttribute('data-tab-count');
-                if (countMap[k] !== undefined) el.textContent = countMap[k];
+                const tab = el.getAttribute('data-tab-count');
+                if (statusCountMap[tab] !== undefined) el.textContent = statusCountMap[tab];
             });
 
             const filterCount = getActiveFilterCount();
             document.getElementById('header-filter-badge')?.classList.toggle('hidden', filterCount === 0);
             document.getElementById('bnav-filter-dot')?.classList.toggle('hidden', filterCount === 0);
-            const mCount = document.getElementById('modal-counter-badge');
-            if (mCount) mCount.textContent = list.length;
+            const mCounter = document.getElementById('modal-counter-badge');
+            if (mCounter) mCounter.textContent = list.length;
 
-            // Concierge Active Banner
+            // Unified Concierge Active Banner with Interactive Removable Chips
             const banner = document.getElementById('wizard-active-banner');
             const bannerCount = document.getElementById('wizard-banner-count');
-            const bannerDesc = document.getElementById('wizard-banner-desc');
-            const isWizardActive = (state.type !== 'all' || state.genre !== 'all' || state.minImdb > 0 || state.rtCritics !== 'all' || state.rtAudience !== 'all');
+            const chipsContainer = document.getElementById('wizard-chips-container');
 
             if (banner) {
-                if (isWizardActive) {
+                if (filterCount > 0) {
                     banner.classList.remove('hidden');
-                    if (bannerCount) bannerCount.textContent = `${list.length} obras`;
-                    const parts = [];
-                    if (state.type === 'movie') parts.push('🎬 Filmes');
-                    else if (state.type === 'series') parts.push('📺 Séries');
-                    else parts.push('🍿 Filmes & Séries');
+                    if (bannerCount) bannerCount.textContent = `${list.length} ${list.length === 1 ? 'obra encontrada' : 'obras encontradas'}`;
 
-                    if (state.genre !== 'all') parts.push(state.genre);
-                    else parts.push('Todos os gêneros');
+                    let chipsHtml = '';
+                    if (state.type !== 'all') {
+                        const lbl = state.type === 'movie' ? '🎬 Filmes' : '📺 Séries';
+                        chipsHtml += `<button onclick="setTypeFilter('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-200 text-xs font-medium hover:bg-purple-500/25 transition" title="Remover filtro de formato"><span>${lbl}</span><span class="text-purple-400 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.genre !== 'all') {
+                        chipsHtml += `<button onclick="setGenreFilter('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-200 text-xs font-medium hover:bg-purple-500/25 transition" title="Remover filtro de gênero"><span>${escapeHtml(state.genre)}</span><span class="text-purple-400 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.minImdb > 0) {
+                        chipsHtml += `<button onclick="setMinImdb(0)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-medium hover:bg-amber-500/25 transition" title="Remover filtro de IMDb"><span>★ IMDb ${state.minImdb}+</span><span class="text-amber-400 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.rtCritics !== 'all') {
+                        const lbl = state.rtCritics === 'certified' ? '🍅 Rotten ≥75%' : '🍅 Rotten Top ≥90%';
+                        chipsHtml += `<button onclick="setRtCritics('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-200 text-xs font-medium hover:bg-rose-500/25 transition" title="Remover filtro de crítica"><span>${lbl}</span><span class="text-rose-400 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.rtAudience !== 'all') {
+                        const lbl = state.rtAudience === 'fresh' ? '🍿 Popcorn ≥60%' : '🍿 Popcorn ≥85%';
+                        chipsHtml += `<button onclick="setRtAudience('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-400/30 text-amber-200 text-xs font-medium hover:bg-amber-400/25 transition" title="Remover filtro de audiência"><span>${lbl}</span><span class="text-amber-300 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.platform !== 'all') {
+                        chipsHtml += `<button onclick="setPlatformFilter('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-200 text-xs font-medium hover:bg-blue-500/25 transition" title="Remover filtro de plataforma"><span>📺 ${escapeHtml(state.platform)}</span><span class="text-blue-400 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.decade !== 'all') {
+                        const dMap = { '2020s': 'Anos 2020', '2010s': 'Anos 2010', 'classic': '< 2010' };
+                        chipsHtml += `<button onclick="setDecadeFilter('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.06] border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/[0.1] transition" title="Remover filtro de década"><span>📅 ${dMap[state.decade] || state.decade}</span><span class="text-slate-400 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.search) {
+                        chipsHtml += `<button onclick="clearSearch()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.06] border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/[0.1] transition" title="Limpar busca"><span>🔍 "${escapeHtml(state.search)}"</span><span class="text-slate-400 hover:text-white font-bold">✕</span></button>`;
+                    }
+                    if (state.status !== 'all') {
+                        const sMap = { 'priority': '★ Prioridade', 'queue': 'Na Fila', 'watched': '✓ Concluído', 'pending': 'Pendentes' };
+                        chipsHtml += `<button onclick="setStatusFilter('all')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.06] border border-white/10 text-slate-300 text-xs font-medium hover:bg-white/[0.1] transition" title="Remover filtro de status"><span>${sMap[state.status] || state.status}</span><span class="text-slate-400 hover:text-white font-bold">✕</span></button>`;
+                    }
 
-                    if (state.minImdb >= 8.0) parts.push('★ IMDb 8.0+');
-                    else if (state.minImdb >= 7.5) parts.push('★ IMDb 7.5+');
-                    else if (state.minImdb >= 7.0) parts.push('★ IMDb 7.0+');
-                    else if (state.rtCritics === 'certified') parts.push('🍅 Certified Fresh (≥75%)');
-                    else if (state.rtAudience === 'high') parts.push('🍿 Favoritos Público (≥85%)');
-
-                    if (bannerDesc) bannerDesc.textContent = parts.join(' · ');
+                    if (chipsContainer) chipsContainer.innerHTML = chipsHtml;
                 } else {
                     banner.classList.add('hidden');
                 }
             }
+        }
 
-            // Standard Active Filters Bar
-            const bar = document.getElementById('active-filters-bar');
-            const chips = document.getElementById('active-chips-container');
-            if (filterCount > 0 && !isWizardActive) {
-                bar.classList.remove('hidden');
-                let html = '';
-                if (state.search) html += `<span class="px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-300">"${escapeHtml(state.search)}"</span>`;
-                if (state.status !== 'all') html += `<span class="px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-300">Status: ${state.status}</span>`;
-                if (state.genre !== 'all') html += `<span class="px-2 py-0.5 rounded-md bg-white/[0.06] text-purple-300">${state.genre}</span>`;
-                if (state.platform !== 'all') html += `<span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 font-mono">${state.platform}</span>`;
-                chips.innerHTML = `<span class="text-slate-500 mr-1">Filtros ativos:</span> ` + html;
-            } else {
-                bar.classList.add('hidden');
-            }
+        function render() {
+            const list = getFilteredCatalog();
+            updateTelemetryAndFilters(list);
 
             const gridEl = document.getElementById('catalog-grid');
             const tableWrapperEl = document.getElementById('catalog-table-wrapper');
@@ -1571,7 +1727,6 @@ HTML_PAGE = """<!DOCTYPE html>
                     const dotColor = isPriority ? 'bg-amber-400 shadow-[0_0_6px_#F59E0B]' : (isWatched ? 'bg-emerald-400 shadow-[0_0_6px_#10B981]' : 'bg-slate-500');
                     const statusText = isPriority ? 'Prioridade' : (isWatched ? 'Concluído' : 'Na Fila');
                     const statusColor = isPriority ? 'text-amber-300' : (isWatched ? 'text-emerald-400' : 'text-slate-400');
-                    const pBadgeClass = getPlatformBadgeClass(item.platform);
 
                     return `
                         <div class="card-clean rounded-2xl p-4 flex flex-col justify-between group relative">
@@ -1648,25 +1803,24 @@ HTML_PAGE = """<!DOCTYPE html>
                                 <!-- Platform Button / Link -->
                                 <a href="https://www.justwatch.com/br/busca?q=${encodeURIComponent(item.title)}" target="_blank" rel="noopener noreferrer" class="h-7 px-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-[11px] font-medium transition inline-flex items-center gap-1.5 shrink-0" title="Ver onde assistir no streaming">
                                     <svg class="w-3 h-3 text-slate-400 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-                                    <span>Ver plataforma</span>
-                                    <svg class="w-2.5 h-2.5 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    <span>${escapeHtml(item.platform || 'Streaming')}</span>
                                 </a>
 
-                                <div class="flex items-center gap-1.5 ml-auto">
-                                    <!-- 1-CLICK EASY MARCAR COMO VISTO BUTTON -->
-                                    ${!isWatched ? `
-                                        <button onclick="setItemStatus('${item.id}', 'watched')" class="h-7 px-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 text-emerald-400 border border-emerald-500/25 text-[11px] font-semibold transition flex items-center gap-1" title="Marcar como Concluído em 1 clique">
-                                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <div class="flex items-center gap-1.5">
+                                    <!-- 1-Click Watched Toggle Button -->
+                                    ${isWatched ? `
+                                        <button onclick="setItemStatus('${item.id}', 'queue')" class="h-7 px-2.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium transition flex items-center gap-1" title="Clique para desmarcar como visto">
+                                            <svg class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                             <span>Visto</span>
                                         </button>
                                     ` : `
-                                        <button onclick="setItemStatus('${item.id}', 'queue')" class="h-7 px-2.5 rounded-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="Já concluído (clique para voltar para a fila)">
-                                            <svg class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            <span>Concluído</span>
+                                        <button onclick="setItemStatus('${item.id}', 'watched')" class="h-7 px-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-emerald-500/30 text-slate-400 hover:text-emerald-300 text-[11px] font-medium transition flex items-center gap-1" title="Marcar como Visto com 1 clique">
+                                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            <span>Marcar</span>
                                         </button>
                                     `}
 
-                                    <!-- Minimal star / edit -->
+                                    <!-- Minimal edit button -->
                                     <button onclick="openEditModal('${item.id}')" class="h-7 w-7 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] flex items-center justify-center text-slate-400 hover:text-white" title="Editar / Detalhes">
                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                                     </button>
@@ -1676,51 +1830,48 @@ HTML_PAGE = """<!DOCTYPE html>
                     `;
                 }).join('');
             } else {
-                // Compact List View
                 gridEl.classList.add('hidden');
                 tableWrapperEl.classList.remove('hidden');
 
                 tableWrapperEl.innerHTML = list.map(item => {
                     const isWatched = item.status === 'watched';
                     const isPriority = item.status === 'priority';
-                    const dotColor = isPriority ? 'bg-amber-400 shadow-[0_0_6px_#F59E0B]' : (isWatched ? 'bg-emerald-400 shadow-[0_0_6px_#10B981]' : 'bg-slate-500');
-                    const statusText = isPriority ? 'Prioridade' : (isWatched ? 'Concluído' : 'Na Fila');
-                    const statusColor = isPriority ? 'text-amber-300' : (isWatched ? 'text-emerald-400' : 'text-slate-400');
-                    const pBadgeClass = getPlatformBadgeClass(item.platform);
-
+                    const dotColor = isPriority ? 'bg-amber-400' : (isWatched ? 'bg-emerald-400' : 'bg-slate-500');
                     return `
                         <div class="p-3 sm:px-4 flex items-center justify-between gap-3 hover:bg-white/[0.02] transition">
-                            <div class="min-w-0 flex-1 cursor-pointer" onclick="openEditModal('${item.id}')">
-                                <div class="flex items-center gap-2 mb-0.5">
-                                    <span class="w-2 h-2 rounded-full shrink-0 ${dotColor}"></span>
-                                    <h4 class="font-semibold text-xs sm:text-sm text-white truncate">${escapeHtml(item.title)}</h4>
-                                    ${item.year ? `<span class="font-mono text-[11px] text-slate-500">(${item.year})</span>` : ''}
-                                    <span class="text-[10px] px-1.5 py-0.2 rounded font-medium ${pBadgeClass}">${escapeHtml(item.platform)}</span>
-                                </div>
-                                <div class="flex items-center gap-2.5 text-xs text-slate-400 pl-4">
-                                    <span class="text-purple-300/80 truncate">${escapeHtml(item.genre)}</span>
-                                    <span class="text-slate-700">·</span>
-                                    <span class="font-mono text-amber-400/90">★ ${item.imdb ? item.imdb.toFixed(1) : '—'}</span>
-                                    <span class="font-mono text-rose-300/90">🍅 ${item.rtCritics ? item.rtCritics + '%' : '—'}</span>
-                                    <span class="font-mono text-amber-200/90">🍿 ${item.rtAudience ? item.rtAudience + '%' : '—'}</span>
+                            <div class="flex items-center gap-3 min-w-0">
+                                <span class="w-2 h-2 rounded-full ${dotColor} shrink-0"></span>
+                                <div class="min-w-0">
+                                    <h4 onclick="openEditModal('${item.id}')" class="font-medium text-xs sm:text-sm text-white truncate cursor-pointer hover:text-purple-300 transition">
+                                        ${escapeHtml(item.title)}
+                                    </h4>
+                                    <p class="text-[11px] text-slate-400 truncate">
+                                        <span class="text-purple-300">${escapeHtml(item.genre)}</span>
+                                        <span class="text-slate-600"> · </span>
+                                        <span>${item.year || '—'}</span>
+                                        <span class="text-slate-600"> · </span>
+                                        <span>${escapeHtml(item.platform || 'Streaming')}</span>
+                                    </p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <a href="https://www.justwatch.com/br/busca?q=${encodeURIComponent(item.title)}" target="_blank" rel="noopener noreferrer" class="h-8 px-2.5 rounded-lg border border-white/[0.08] text-[11px] font-medium text-slate-300 hover:text-white flex items-center gap-1.5" title="Ver onde assistir no streaming">
-                                    <span>Ver plataforma</span>
-                                    <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                </a>
-                                
-                                ${!isWatched ? `
-                                    <button onclick="setItemStatus('${item.id}', 'watched')" class="h-8 px-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 text-[11px] font-semibold transition flex items-center gap-1" title="Marcar como Concluído em 1 clique">
-                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        <span>Visto</span>
+
+                            <div class="flex items-center gap-3 shrink-0">
+                                <div class="hidden sm:flex items-center gap-2 text-xs font-mono">
+                                    <span class="text-amber-300">★ ${item.imdb ? item.imdb.toFixed(1) : '—'}</span>
+                                    <span class="text-slate-600">·</span>
+                                    <span class="text-rose-300">🍅 ${item.rtCritics ? item.rtCritics + '%' : '—'}</span>
+                                    <span class="text-slate-600">·</span>
+                                    <span class="text-amber-200">🍿 ${item.rtAudience ? item.rtAudience + '%' : '—'}</span>
+                                </div>
+
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="setItemStatus('${item.id}', '${isWatched ? 'queue' : 'watched'}')" class="px-2 py-1 rounded-lg ${isWatched ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/[0.03] text-slate-400 hover:text-white'} text-[11px] font-medium transition">
+                                        ${isWatched ? '✓ Visto' : 'Marcar'}
                                     </button>
-                                ` : `
-                                    <button onclick="setItemStatus('${item.id}', 'queue')" class="h-8 px-2.5 rounded-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition">
-                                        ✓ Visto
+                                    <button onclick="openEditModal('${item.id}')" class="p-1 rounded-lg text-slate-400 hover:text-white">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                                     </button>
-                                `}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1734,20 +1885,19 @@ HTML_PAGE = """<!DOCTYPE html>
             item.status = newStatus;
             persist();
             render();
-            const labels = { priority: 'marcado como Prioridade ★', queue: 'colocado Na Fila', watched: 'marcado como Concluído! 🎉' };
-            notify(`"${item.title}" ${labels[newStatus] || 'atualizado'}`);
+            const msgMap = { priority: 'Prioridade ★', queue: 'Na Fila', watched: 'Marcado como Visto ✓' };
+            notify(`"${item.title}": ${msgMap[newStatus] || newStatus}`);
         }
 
         function setStatusFilter(status) {
             state.status = status;
-            if (status !== 'all') state.type = 'all';
             syncStyles();
             render();
         }
 
         function setTypeFilter(type) {
             state.type = type;
-            if (type !== 'all') state.status = 'all';
+            wizardState.type = type;
             syncStyles();
             render();
         }
@@ -1782,20 +1932,19 @@ HTML_PAGE = """<!DOCTYPE html>
             render();
         }
 
-        function setDecadeFilter(dec) {
-            state.decade = dec;
+        function setDecadeFilter(d) {
+            state.decade = d;
             syncStyles();
             render();
         }
 
-        function setSortOrder(sort) {
-            state.sort = sort;
-            syncStyles();
+        function setSortOrder(s) {
+            state.sort = s;
             render();
         }
 
-        function setViewMode(mode) {
-            state.view = mode;
+        function setViewMode(v) {
+            state.view = v;
             syncStyles();
             render();
         }
@@ -1831,24 +1980,38 @@ HTML_PAGE = """<!DOCTYPE html>
             wizardState.genre = 'all';
             wizardState.ratingChoice = 'all';
             wizardState.step = 1;
+            wizardMaxStepVisited = 1;
 
             const inp = document.getElementById('search-input');
             if (inp) inp.value = '';
             document.getElementById('clear-search-btn')?.classList.add('hidden');
             syncStyles();
             render();
-            notify("Filtros redefinidos");
+            notify("Catálogo completo sem filtros (217 títulos)");
         }
 
         function syncStyles() {
+            // Format tabs sync
+            document.querySelectorAll('[data-format-tab]').forEach(el => {
+                const fmt = el.getAttribute('data-format-tab');
+                const active = state.type === fmt;
+                el.classList.toggle('bg-purple-600/30', active);
+                el.classList.toggle('text-purple-200', active);
+                el.classList.toggle('border-purple-500/40', active);
+                el.classList.toggle('text-slate-400', !active);
+                el.classList.toggle('border-transparent', !active);
+            });
+
+            // Status tabs sync
             document.querySelectorAll('.tab-pill').forEach(el => {
                 const tab = el.getAttribute('data-tab');
-                const active = (tab === 'series') ? state.type === 'series' : (state.status === tab && state.type === 'all');
+                const active = state.status === tab;
                 el.classList.toggle('bg-white/[0.12]', active);
                 el.classList.toggle('text-white', active);
                 el.classList.toggle('text-slate-300', !active);
             });
 
+            // Genre strip sync
             document.querySelectorAll('.genre-chip').forEach(el => {
                 const g = el.getAttribute('data-genre-chip');
                 const active = state.genre === g;
@@ -1858,15 +2021,24 @@ HTML_PAGE = """<!DOCTYPE html>
                 el.classList.toggle('text-slate-400', !active);
             });
 
+            // Mobile bottom dock active classes
             const isWView = !document.getElementById('wizard-view')?.classList.contains('hidden');
             document.querySelectorAll('[data-bnav]').forEach(el => {
                 const b = el.getAttribute('data-bnav');
                 let active = false;
                 if (b === 'wizard') active = isWView;
-                else if (b === 'catalog') active = !isWView && state.status === 'all';
+                else if (b === 'catalog') active = !isWView && state.status !== 'watched';
                 else if (b === 'watched') active = !isWView && state.status === 'watched';
                 el.classList.toggle('text-purple-400', active);
                 el.classList.toggle('text-slate-400', !active);
+            });
+
+            // Filter modal sync
+            document.querySelectorAll('[data-m-type]').forEach(el => {
+                const active = state.type === el.getAttribute('data-m-type');
+                el.classList.toggle('bg-purple-600/25', active);
+                el.classList.toggle('border-purple-500/50', active);
+                el.classList.toggle('border-white/[0.08]', !active);
             });
 
             document.querySelectorAll('[data-m-status]').forEach(el => {
@@ -1911,6 +2083,13 @@ HTML_PAGE = """<!DOCTYPE html>
                 el.classList.toggle('border-white/[0.08]', !active);
             });
 
+            document.querySelectorAll('[data-m-decade]').forEach(el => {
+                const active = state.decade === el.getAttribute('data-m-decade');
+                el.classList.toggle('bg-purple-600/25', active);
+                el.classList.toggle('border-purple-500/50', active);
+                el.classList.toggle('border-white/[0.08]', !active);
+            });
+
             const isGrid = state.view === 'grid';
             document.getElementById('view-btn-grid')?.classList.toggle('text-white', isGrid);
             document.getElementById('view-btn-grid')?.classList.toggle('bg-white/[0.08]', isGrid);
@@ -1948,33 +2127,21 @@ HTML_PAGE = """<!DOCTYPE html>
         function runRandomizer() {
             const pool = catalog.filter(i => i.status !== 'watched');
             if (pool.length === 0) return;
+            const chosen = pool[Math.floor(Math.random() * pool.length)];
 
-            const t = document.getElementById('rand-title');
-            const meta = document.getElementById('rand-meta');
-            const tag = document.getElementById('rand-tag');
-            const ratings = document.getElementById('rand-ratings');
-            const plat = document.getElementById('rand-platform');
+            document.getElementById('rand-tag').textContent = chosen.type === 'series' ? 'Série Sorteada' : 'Filme Sorteado';
+            document.getElementById('rand-title').textContent = chosen.title;
+            
+            const rEl = document.getElementById('rand-ratings');
+            rEl.classList.remove('hidden');
+            rEl.innerHTML = `IMDb ★ ${chosen.imdb ? chosen.imdb.toFixed(1) : '—'} · 🍅 ${chosen.rtCritics ? chosen.rtCritics + '%' : '—'} · 🍿 ${chosen.rtAudience ? chosen.rtAudience + '%' : '—'}`;
 
-            tag.textContent = "Sorteando...";
-            ratings.classList.add('hidden');
-            plat.classList.add('hidden');
+            const pEl = document.getElementById('rand-platform');
+            pEl.classList.remove('hidden');
+            pEl.innerHTML = `<span class="px-2 py-0.5 rounded text-[11px] font-mono ${getPlatformBadgeClass(chosen.platform)}">${escapeHtml(chosen.platform || 'Streaming')}</span>`;
 
-            let count = 0;
-            const timer = setInterval(() => {
-                const item = pool[Math.floor(Math.random() * pool.length)];
-                t.textContent = item.title;
-                meta.textContent = `${item.genre} · ${item.year || ''}`;
-                count++;
-                if (count >= 14) {
-                    clearInterval(timer);
-                    tag.textContent = item.status === 'priority' ? '★ Prioridade' : 'Na Fila';
-                    ratings.innerHTML = `IMDb ${item.imdb ? item.imdb.toFixed(1) : '-'} · 🍅 ${item.rtCritics || '-'}% · 🍿 ${item.rtAudience || '-'}%`;
-                    ratings.classList.remove('hidden');
-
-                    plat.innerHTML = `<span class="px-2 py-0.5 rounded text-[11px] font-medium ${getPlatformBadgeClass(item.platform)}">${item.platform}</span>`;
-                    plat.classList.remove('hidden');
-                }
-            }, 60);
+            document.getElementById('rand-meta').textContent = `${chosen.year || ''} · ${chosen.genre}`;
+            notify(`Sorteado: "${chosen.title}"`);
         }
 
         function openAddModal() {
@@ -2149,4 +2316,4 @@ with open('index.html', 'w', encoding='utf-8') as f:
 with open('cinevault_emannuel_petry.html', 'w', encoding='utf-8') as f:
     f.write(final_html)
 
-print("SUCCESS: index.html and cinevault_emannuel_petry.html updated with Discovery Flow (Etapas)!")
+print("SUCCESS: index.html and cinevault_emannuel_petry.html updated with refined Discovery Flow (Etapas)!")
