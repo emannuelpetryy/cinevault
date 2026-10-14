@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#090A0F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cinevault">
+    <title>Cinevault — Emannuel Petry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        surface: {
+                            950: '#090A0F',
+                            900: '#0F1117',
+                            800: '#161922',
+                            700: '#1E2230',
+                            600: '#2E3448'
+                        },
+                        brand: {
+                            DEFAULT: '#820AD1',
+                            light: '#9B30FF',
+                            subtle: 'rgba(130, 10, 209, 0.14)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            background-color: #090A0F;
+            color: #F8FAFC;
+            overflow-x: hidden;
+            overscroll-behavior-y: none;
+        }
+        /* Crisp 1px Borders & Elevated Surfaces */
+        .border-subtle {
+            border-color: #1E2230;
+        }
+        .surface-card {
+            background-color: #0F1117;
+            border: 1px solid #1E2230;
+            transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .surface-card:hover {
+            border-color: #2E3448;
+            background-color: #131620;
+            box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.65);
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090A0F;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E2230;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2E3448;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Safe Area Utilities for Mobile Apps */
+        .pb-safe {
+            padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+        }
+        .bottom-nav-safe {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .sheet-safe {
+            padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+        }
+        /* Ambient Header Lighting */
+        .header-gradient {
+            background: radial-gradient(circle at 12% 0%, rgba(130, 10, 209, 0.18) 0%, rgba(15, 17, 23, 0) 60%),
+                        rgba(9, 10, 15, 0.88);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row selection:bg-brand selection:text-white">
+
+    <!-- ================= DESKTOP SIDEBAR (HIDDEN ON MOBILE) ================= -->
+    <aside class="hidden lg:flex lg:w-64 lg:fixed lg:inset-y-0 lg:left-0 bg-surface-900 border-r border-subtle flex-col justify-between z-30">
+        <div>
+            <!-- Brand Header -->
+            <div class="h-16 px-5 flex items-center justify-between border-b border-subtle">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#820AD1] to-[#6D28D9] flex items-center justify-center shadow-inner border border-white/15">
+                        <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                            <line x1="7" y1="2" x2="7" y2="22"></line>
+                            <line x1="17" y1="2" x2="17" y2="22"></line>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <line x1="2" y1="7" x2="7" y2="7"></line>
+                            <line x1="2" y1="17" x2="7" y2="17"></line>
+                            <line x1="17" y1="17" x2="22" y2="17"></line>
+                            <line x1="17" y1="7" x2="22" y2="7"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-sm tracking-tight text-white">Cinevault</span>
+                            <span class="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand/20 text-purple-300 border border-purple-500/30">PRO</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Emannuel Petry</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Primary Views -->
+            <div class="p-3">
+                <div class="text-[10px] font-mono uppercase tracking-widest text-slate-500 px-2.5 mb-2">Visualizacoes</div>
+                <nav class="flex flex-col gap-1">
+                    <button onclick="setStatusFilter('all')" data-nav="all" class="nav-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition">
+                        <div class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            <span>Catalogo Completo</span>
+                        </div>
+                        <span data-count="all" class="font-mono text-[11px] text-slate-500">0</span>
+                    </button>
+
+                    <button onclick="setStatusFilter('pending')" data-nav="pending" class="nav-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition">
+                        <div class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>Pendentes</span>
+                        </div>
+                        <span data-count="pending" class="font-mono text-[11px] text-slate-500">0</span>
+                    </button>
+
+                    <button onclick="setStatusFilter('priority')" data-nav="priority" class="nav-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]"></span>
+                            <span>Prioridade</span>
+                        </div>
+                        <span data-count="priority" class="font-mono text-[11px] text-slate-500">0</span>
+                    </button>
+
+                    <button onclick="setStatusFilter('queue')" data-nav="queue" class="nav-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                            <span>Na Fila</span>
+                        </div>
+                        <span data-count="queue" class="font-mono text-[11px] text-slate-500">0</span>
+                    </button>
+
+                    <button onclick="setStatusFilter('watched')" data-nav="watched" class="nav-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10B981]"></span>
+                            <span>Concluidos</span>
+                        </div>
+                        <span data-count="watched" class="font-mono text-[11px] text-slate-500">0</span>
+                    </button>
+
+                    <button onclick="setStatusFilter('series')" data-nav="series" class="nav-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition">
+                        <div class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                            <span>Series e Docs</span>
+                        </div>
+                        <span data-count="series" class="font-mono text-[11px] text-slate-500">0</span>
+                    </button>
+                </nav>
+
+                <!-- Origin Filter -->
+                <div class="mt-6">
+                    <div class="text-[10px] font-mono uppercase tracking-widest text-slate-500 px-2.5 mb-2">Origem da Curadoria</div>
+                    <div class="flex flex-col gap-1">
+                        <button onclick="setOriginFilter('all')" data-origin="all" class="origin-item flex items-center justify-between px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition">
+                            <span>Todas as Origens</span>
+                        </button>
+                        <button onclick="setOriginFilter('user')" data-origin="user" class="origin-item flex items-center justify-between px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition">
+                            <span>Catalogo Pessoal (Manu)</span>
+                        </button>
+                        <button onclick="setOriginFilter('brother')" data-origin="brother" class="origin-item flex items-center justify-between px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition">
+                            <span>Indicacao Irmao</span>
+                        </button>
+                        <button onclick="setOriginFilter('both')" data-origin="both" class="origin-item flex items-center justify-between px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition">
+                            <span>Em Ambos</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Completion Progress -->
+        <div class="p-4 border-t border-subtle bg-surface-950/60">
+            <div class="mb-3">
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                    <span class="text-slate-400 font-medium">Indice de Conclusao</span>
+                    <span id="sidebar-percent" class="font-mono text-xs text-emerald-400 font-semibold">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-surface-800 rounded-full overflow-hidden">
+                    <div id="sidebar-progress" class="h-full bg-gradient-to-r from-[#820AD1] to-emerald-400 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-subtle text-[11px] text-slate-500">
+                <span>Persistencia Local</span>
+                <button onclick="openResetModal()" class="text-slate-400 hover:text-white underline transition">Restaurar</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ================= SLIDE-OVER MOBILE DRAWER ================= -->
+    <div id="mobile-drawer-backdrop" onclick="closeMobileDrawer()" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm transition-opacity lg:hidden"></div>
+    <aside id="mobile-drawer" class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-surface-900 border-r border-subtle flex flex-col justify-between transform -translate-x-full transition-transform duration-200 ease-out lg:hidden">
+        <div class="overflow-y-auto no-scrollbar">
+            <!-- Drawer Header -->
+            <div class="h-16 px-4 flex items-center justify-between border-b border-subtle">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#820AD1] to-[#6D28D9] flex items-center justify-center border border-white/15">
+                        <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-sm text-white block leading-none">Cinevault</span>
+                        <span class="text-[10px] text-slate-400">Emannuel Petry</span>
+                    </div>
+                </div>
+                <button onclick="closeMobileDrawer()" class="p-2 rounded-lg text-slate-400 hover:text-white bg-surface-800 border border-subtle">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <!-- Drawer Navigation -->
+            <div class="p-3.5 space-y-5">
+                <div>
+                    <div class="text-[10px] font-mono uppercase tracking-widest text-slate-500 px-2 mb-1.5">Visualizacoes</div>
+                    <div class="flex flex-col gap-1">
+                        <button onclick="setStatusFilter('all'); closeMobileDrawer();" data-nav="all" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition">
+                            <span>Catalogo Completo</span>
+                            <span data-count="all" class="font-mono text-[11px] text-slate-500">0</span>
+                        </button>
+                        <button onclick="setStatusFilter('pending'); closeMobileDrawer();" data-nav="pending" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition">
+                            <span>Pendentes (Fila + Prioridade)</span>
+                            <span data-count="pending" class="font-mono text-[11px] text-slate-500">0</span>
+                        </button>
+                        <button onclick="setStatusFilter('priority'); closeMobileDrawer();" data-nav="priority" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition">
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span>Prioridade</span></div>
+                            <span data-count="priority" class="font-mono text-[11px] text-slate-500">0</span>
+                        </button>
+                        <button onclick="setStatusFilter('queue'); closeMobileDrawer();" data-nav="queue" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition">
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-400"></span><span>Na Fila</span></div>
+                            <span data-count="queue" class="font-mono text-[11px] text-slate-500">0</span>
+                        </button>
+                        <button onclick="setStatusFilter('watched'); closeMobileDrawer();" data-nav="watched" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition">
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>Concluidos</span></div>
+                            <span data-count="watched" class="font-mono text-[11px] text-slate-500">0</span>
+                        </button>
+                        <button onclick="setStatusFilter('series'); closeMobileDrawer();" data-nav="series" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition">
+                            <span>Series e Documentarios</span>
+                            <span data-count="series" class="font-mono text-[11px] text-slate-500">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Drawer Origin -->
+                <div>
+                    <div class="text-[10px] font-mono uppercase tracking-widest text-slate-500 px-2 mb-1.5">Origem da Curadoria</div>
+                    <div class="flex flex-col gap-1">
+                        <button onclick="setOriginFilter('all'); closeMobileDrawer();" data-origin="all" class="origin-item flex items-center justify-between px-3 py-2 rounded-lg text-xs transition">
+                            <span>Todas as Origens</span>
+                        </button>
+                        <button onclick="setOriginFilter('user'); closeMobileDrawer();" data-origin="user" class="origin-item flex items-center justify-between px-3 py-2 rounded-lg text-xs transition">
+                            <span>Catalogo Pessoal (Manu)</span>
+                        </button>
+                        <button onclick="setOriginFilter('brother'); closeMobileDrawer();" data-origin="brother" class="origin-item flex items-center justify-between px-3 py-2 rounded-lg text-xs transition">
+                            <span>Indicacao Irmao</span>
+                        </button>
+                        <button onclick="setOriginFilter('both'); closeMobileDrawer();" data-origin="both" class="origin-item flex items-center justify-between px-3 py-2 rounded-lg text-xs transition">
+                            <span>Em Ambos</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Drawer System Actions -->
+                <div>
+                    <div class="text-[10px] font-mono uppercase tracking-widest text-slate-500 px-2 mb-1.5">Sistema e Dados</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="closeMobileDrawer(); openExportModal();" class="px-3 py-2.5 rounded-lg bg-surface-800 border border-subtle text-xs font-medium text-slate-200 flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Backup</span>
+                        </button>
+                        <button onclick="closeMobileDrawer(); openResetModal();" class="px-3 py-2.5 rounded-lg bg-surface-800 border border-subtle text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                            <span>Restaurar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drawer Footer Progress -->
+        <div class="p-4 border-t border-subtle bg-surface-950 sheet-safe">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-slate-400">Progresso Geral</span>
+                <span id="drawer-percent" class="font-mono text-xs text-emerald-400 font-semibold">0%</span>
+            </div>
+            <div class="w-full h-1.5 bg-surface-800 rounded-full overflow-hidden">
+                <div id="drawer-progress" class="h-full bg-gradient-to-r from-[#820AD1] to-emerald-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ================= MAIN WORKSPACE ================= -->
+    <div class="flex-1 lg:pl-64 flex flex-col min-h-screen pb-safe lg:pb-10">
+
+        <!-- Sticky Top Header & Genre Strip -->
+        <header class="header-gradient border-b border-subtle sticky top-0 z-20 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-3 pb-2.5 sm:py-4">
+
+                <!-- Mobile Top Brand Bar (< 1024px) -->
+                <div class="flex lg:hidden items-center justify-between mb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <button onclick="openMobileDrawer()" class="p-2 -ml-1 rounded-lg text-slate-300 hover:text-white active:bg-surface-800" aria-label="Abrir Menu">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-md bg-gradient-to-br from-[#820AD1] to-[#6D28D9] flex items-center justify-center border border-white/15">
+                                <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                            </div>
+                            <span class="font-semibold text-sm tracking-tight text-white">Cinevault</span>
+                            <span class="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand/20 text-purple-300 border border-purple-500/30">PRO</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <!-- View Toggle on Mobile Header -->
+                        <div class="inline-flex rounded-lg bg-surface-900 p-0.5 border border-subtle">
+                            <button onclick="setViewMode('grid')" id="mobile-view-grid" class="p-1.5 rounded-md text-slate-400 transition" aria-label="Grade">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            </button>
+                            <button onclick="setViewMode('table')" id="mobile-view-table" class="p-1.5 rounded-md text-slate-400 transition" aria-label="Lista Compacta">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            </button>
+                        </div>
+
+                        <button onclick="openAddModal()" class="h-8 px-2.5 rounded-lg bg-[#820AD1] active:bg-[#9B30FF] text-white text-xs font-medium flex items-center gap-1 shadow-sm">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>Novo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search & Desktop Action Bar -->
+                <div class="flex items-center justify-between gap-3">
+                    <div class="relative flex-1 max-w-xl">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            oninput="handleSearch(this.value)"
+                            placeholder="Buscar titulo, genero, plataforma ou nota..." 
+                            class="w-full pl-10 pr-14 py-2 bg-surface-900 border border-subtle rounded-lg text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/60 transition"
+                        >
+                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                            <button id="clear-search-btn" onclick="clearSearch()" class="hidden p-1 text-slate-400 hover:text-white" aria-label="Limpar busca">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                            <kbd class="hidden sm:inline-block font-mono text-[10px] text-slate-500 bg-surface-800 border border-subtle px-1.5 py-0.5 rounded">/</kbd>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Primary Buttons -->
+                    <div class="hidden lg:flex items-center gap-2.5">
+                        <button onclick="openRandomizerModal()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#820AD1] hover:bg-[#9B30FF] text-white text-xs font-medium shadow-sm transition">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                            <span>Seletor Aleatorio</span>
+                        </button>
+
+                        <button onclick="openAddModal()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-800 hover:bg-surface-700 border border-subtle text-slate-200 text-xs font-medium transition">
+                            <svg class="w-3.5 h-3.5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>Novo Registro</span>
+                        </button>
+
+                        <button onclick="openExportModal()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-800 hover:bg-surface-700 border border-subtle text-slate-200 text-xs font-medium transition">
+                            <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Exportar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Momentum-Scrolling Genre Strip & Controls -->
+                <div class="mt-2.5 pt-2.5 border-t border-subtle flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1" id="genre-bar">
+                        <button onclick="setGenreFilter('all')" data-genre="all" class="genre-pill px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">
+                            Todas
+                        </button>
+                        <button onclick="setGenreFilter('Suspense & Thriller')" data-genre="Suspense & Thriller" class="genre-pill px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">
+                            Suspense & Thriller
+                        </button>
+                        <button onclick="setGenreFilter('Drama & Biografia')" data-genre="Drama & Biografia" class="genre-pill px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">
+                            Drama & Biografia
+                        </button>
+                        <button onclick="setGenreFilter('Ação & Ficção')" data-genre="Ação & Ficção" class="genre-pill px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">
+                            Acao & Ficcao
+                        </button>
+                        <button onclick="setGenreFilter('Terror')" data-genre="Terror" class="genre-pill px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">
+                            Terror
+                        </button>
+                        <button onclick="setGenreFilter('Comédia')" data-genre="Comédia" class="genre-pill px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">
+                            Comedia
+                        </button>
+                        <button onclick="setGenreFilter('Série / Doc')" data-genre="Série / Doc" class="genre-pill px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition">
+                            Series & Docs
+                        </button>
+                    </div>
+
+                    <!-- Desktop Sort & View Switcher -->
+                    <div class="hidden lg:flex items-center gap-2 shrink-0">
+                        <select id="sort-select" onchange="setSortOrder(this.value)" class="bg-surface-900 border border-subtle rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-purple-500/50">
+                            <option value="status">Ordenar: Prioridade</option>
+                            <option value="alpha">Ordenar: A - Z</option>
+                            <option value="rating">Ordenar: Avaliacao</option>
+                        </select>
+
+                        <div class="inline-flex rounded-lg bg-surface-900 p-0.5 border border-subtle">
+                            <button onclick="setViewMode('grid')" id="view-btn-grid" class="p-1.5 rounded-md text-slate-400 hover:text-white transition" title="Visualizacao em Grade">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            </button>
+                            <button onclick="setViewMode('table')" id="view-btn-table" class="p-1.5 rounded-md text-slate-400 hover:text-white transition" title="Visualizacao Compacta">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Content -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6">
+
+            <!-- Compact 4-Column Telemetry Strip (Works on Mobile & Desktop) -->
+            <div class="grid grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div onclick="setStatusFilter('all')" class="cursor-pointer surface-card rounded-xl p-2.5 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between">
+                    <div>
+                        <span class="text-[10px] sm:text-[11px] font-medium text-slate-400 block truncate">Total</span>
+                        <span id="kpi-total" class="font-mono text-base sm:text-xl font-semibold text-white mt-0.5 block">0</span>
+                    </div>
+                    <div class="hidden sm:flex w-8 h-8 rounded-lg bg-surface-800 border border-subtle items-center justify-center text-slate-400">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                </div>
+
+                <div onclick="setStatusFilter('priority')" class="cursor-pointer surface-card rounded-xl p-2.5 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between">
+                    <div>
+                        <span class="text-[10px] sm:text-[11px] font-medium text-amber-300/90 block truncate">Prioridade</span>
+                        <span id="kpi-priority" class="font-mono text-base sm:text-xl font-semibold text-amber-400 mt-0.5 block">0</span>
+                    </div>
+                    <div class="hidden sm:flex w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 items-center justify-center text-amber-400">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                </div>
+
+                <div onclick="setStatusFilter('queue')" class="cursor-pointer surface-card rounded-xl p-2.5 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between">
+                    <div>
+                        <span class="text-[10px] sm:text-[11px] font-medium text-slate-400 block truncate">Na Fila</span>
+                        <span id="kpi-queue" class="font-mono text-base sm:text-xl font-semibold text-slate-200 mt-0.5 block">0</span>
+                    </div>
+                    <div class="hidden sm:flex w-8 h-8 rounded-lg bg-surface-800 border border-subtle items-center justify-center text-slate-400">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                </div>
+
+                <div onclick="setStatusFilter('watched')" class="cursor-pointer surface-card rounded-xl p-2.5 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between">
+                    <div>
+                        <span class="text-[10px] sm:text-[11px] font-medium text-emerald-400/90 block truncate">Concluidos</span>
+                        <div class="flex items-baseline gap-1 mt-0.5">
+                            <span id="kpi-watched" class="font-mono text-base sm:text-xl font-semibold text-emerald-400">0</span>
+                            <span id="kpi-watched-pct" class="font-mono text-[10px] text-emerald-500/80">0%</span>
+                        </div>
+                    </div>
+                    <div class="hidden sm:flex w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 items-center justify-center text-emerald-400">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Filter Bar & Mobile Quick Sort -->
+            <div class="flex items-center justify-between gap-2 mb-3.5 px-0.5">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span id="results-counter" class="font-mono text-[11px] sm:text-xs text-slate-400 truncate">Exibindo 0 registros</span>
+                    <button id="clear-filters-btn" onclick="resetAllFilters()" class="hidden text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1 shrink-0">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        <span>Limpar</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Sort Selector -->
+                <div class="flex lg:hidden items-center gap-1.5 shrink-0">
+                    <select id="mobile-sort-select" onchange="setSortOrder(this.value)" class="bg-surface-900 border border-subtle rounded-lg px-2 py-1 text-[11px] text-slate-300 focus:outline-none">
+                        <option value="status">Ordem: Prioridade</option>
+                        <option value="alpha">Ordem: A - Z</option>
+                        <option value="rating">Ordem: Avaliacao</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 1. GRID VIEW CONTAINER (Touch-friendly 40px action buttons) -->
+            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- 2. COMPACT LIST / TABLE VIEW CONTAINER (Spotify Mobile Media Row + Desktop Table) -->
+            <div id="catalog-table-wrapper" class="hidden surface-card rounded-xl overflow-hidden">
+                <!-- Mobile Compact Media Rows (< 768px) -->
+                <div id="catalog-mobile-list" class="md:hidden divide-y divide-[#1E2230]">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Desktop Multi-Column Table (>= 768px) -->
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-subtle text-[11px] font-mono uppercase tracking-wider text-slate-500 bg-surface-950/60">
+                                <th class="py-3 px-4">Titulo</th>
+                                <th class="py-3 px-4">Categoria</th>
+                                <th class="py-3 px-4">Origem</th>
+                                <th class="py-3 px-4">Avaliacao</th>
+                                <th class="py-3 px-4 text-right">Status e Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalog-table-body" class="divide-y divide-[#1E2230] text-xs">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden surface-card rounded-xl py-14 px-4 text-center">
+                <div class="w-10 h-10 rounded-lg bg-surface-800 border border-subtle flex items-center justify-center mx-auto mb-3 text-slate-400">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <h3 class="text-sm font-semibold text-white mb-1">Nenhum registro encontrado</h3>
+                <p class="text-xs text-slate-400 max-w-xs mx-auto mb-4">Nao ha titulos correspondentes aos parametros de filtragem selecionados.</p>
+                <div class="flex justify-center gap-2">
+                    <button onclick="resetAllFilters()" class="px-3.5 py-2 rounded-lg bg-surface-800 hover:bg-surface-700 border border-subtle text-xs font-medium text-slate-200 transition">
+                        Redefinir Filtros
+                    </button>
+                    <button onclick="openAddModal()" class="px-3.5 py-2 rounded-lg bg-[#820AD1] hover:bg-[#9B30FF] text-xs font-medium text-white transition">
+                        Novo Titulo
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================= FIXED MOBILE BOTTOM NAVIGATION BAR (< 1024px) ================= -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[#090A0F]/90 backdrop-blur-xl border-t border-subtle bottom-nav-safe">
+        <div class="grid grid-cols-5 h-16 max-w-md mx-auto">
+            <button onclick="setStatusFilter('pending')" data-bnav="pending" class="bnav-item flex flex-col items-center justify-center gap-1 text-slate-400 transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span class="text-[10px] font-medium tracking-tight">Pendentes</span>
+            </button>
+
+            <button onclick="setStatusFilter('priority')" data-bnav="priority" class="bnav-item flex flex-col items-center justify-center gap-1 text-slate-400 transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span class="text-[10px] font-medium tracking-tight">Prioridade</span>
+            </button>
+
+            <button onclick="openRandomizerModal()" class="flex flex-col items-center justify-center gap-1 text-purple-300 active:scale-95 transition">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#820AD1] to-[#6D28D9] text-white flex items-center justify-center shadow-lg border border-purple-400/30">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                </div>
+                <span class="text-[10px] font-medium tracking-tight text-purple-300">Sortear</span>
+            </button>
+
+            <button onclick="setStatusFilter('watched')" data-bnav="watched" class="bnav-item flex flex-col items-center justify-center gap-1 text-slate-400 transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span class="text-[10px] font-medium tracking-tight">Concluidos</span>
+            </button>
+
+            <button onclick="openMobileDrawer()" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                <span class="text-[10px] font-medium tracking-tight">Filtros</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ================= MODALS (BOTTOM-SHEETS ON MOBILE, DIALOGS ON DESKTOP) ================= -->
+
+    <!-- 1. RANDOMIZER MODAL -->
+    <div id="randomizer-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-surface-900 border-t sm:border border-subtle rounded-t-2xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 sheet-safe sm:pb-6 shadow-2xl">
+            <div class="w-10 h-1 bg-surface-700 rounded-full mx-auto mb-3 sm:hidden"></div>
+            <div class="flex items-center justify-between pb-3.5 border-b border-subtle mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-brand/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-semibold text-white">Seletor de Sessao</h2>
+                        <p class="text-[11px] text-slate-400">Escolha algoritmica por escopo e genero</p>
+                    </div>
+                </div>
+                <button onclick="closeRandomizerModal()" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                    <label class="text-[11px] font-medium text-slate-400 block mb-1.5">Escopo</label>
+                    <select id="rand-pool" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                        <option value="pending">Todos Pendentes</option>
+                        <option value="priority">Apenas Prioridade</option>
+                        <option value="queue">Apenas Na Fila</option>
+                        <option value="series">Apenas Series</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[11px] font-medium text-slate-400 block mb-1.5">Categoria</label>
+                    <select id="rand-genre" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                        <option value="all">Todas</option>
+                        <option value="Suspense & Thriller">Suspense & Thriller</option>
+                        <option value="Drama & Biografia">Drama & Biografia</option>
+                        <option value="Ação & Ficção">Acao & Ficcao</option>
+                        <option value="Terror">Terror</option>
+                        <option value="Comédia">Comedia</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-surface-950 border border-subtle rounded-xl p-5 text-center min-h-[145px] flex flex-col items-center justify-center mb-4">
+                <span id="rand-status-tag" class="font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-surface-800 text-slate-400 border border-subtle mb-2">
+                    Pronto para Sorteio
+                </span>
+                <h3 id="rand-title" class="text-base font-semibold text-white mb-1">
+                    Defina os filtros e execute
+                </h3>
+                <p id="rand-meta" class="text-xs text-slate-400"></p>
+
+                <div id="rand-actions" class="hidden mt-4 pt-3 border-t border-subtle w-full flex justify-center gap-2">
+                    <button id="rand-mark-watched" class="px-3.5 py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center gap-1.5 transition">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Marcar como Concluido</span>
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="runRandomizer()" class="w-full h-11 rounded-xl bg-[#820AD1] hover:bg-[#9B30FF] active:scale-[0.99] text-white font-medium text-xs transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline></svg>
+                <span>Sortear Titulo Agora</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. ADD / EDIT ENTRY MODAL -->
+    <div id="entry-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-surface-900 border-t sm:border border-subtle rounded-t-2xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 sheet-safe sm:pb-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="w-10 h-1 bg-surface-700 rounded-full mx-auto mb-3 sm:hidden"></div>
+            <div class="flex items-center justify-between pb-3.5 border-b border-subtle mb-4">
+                <h2 id="entry-modal-title" class="text-sm font-semibold text-white">Novo Registro</h2>
+                <button onclick="closeAddModal()" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <form id="entry-form" onsubmit="saveEntryForm(event)" class="space-y-3.5">
+                <input type="hidden" id="entry-id">
+
+                <div>
+                    <label class="text-[11px] font-medium text-slate-400 block mb-1">Titulo da Obra *</label>
+                    <input type="text" id="entry-title" required placeholder="Ex: Oppenheimer" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-medium text-slate-400 block mb-1">Formato</label>
+                        <select id="entry-type" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                            <option value="movie">Filme</option>
+                            <option value="series">Serie / Doc</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-medium text-slate-400 block mb-1">Status</label>
+                        <select id="entry-status" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                            <option value="priority">Prioridade</option>
+                            <option value="queue">Na Fila</option>
+                            <option value="watched">Concluido</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-medium text-slate-400 block mb-1">Categoria</label>
+                        <select id="entry-genre" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                            <option value="Suspense & Thriller">Suspense & Thriller</option>
+                            <option value="Drama & Biografia">Drama & Biografia</option>
+                            <option value="Ação & Ficção">Acao & Ficcao</option>
+                            <option value="Terror">Terror</option>
+                            <option value="Comédia">Comedia</option>
+                            <option value="Série / Doc">Serie / Doc</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-medium text-slate-400 block mb-1">Origem</label>
+                        <select id="entry-origin" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                            <option value="user">Manu (Pessoal)</option>
+                            <option value="brother">Irmao</option>
+                            <option value="both">Ambos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-medium text-slate-400 block mb-1">Subgenero / Plataforma</label>
+                    <input type="text" id="entry-subgenre" placeholder="Ex: Thriller Psicologico • Max" class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-medium text-slate-400 block mb-1">Anotacao Pessoal</label>
+                    <input type="text" id="entry-note" placeholder="Ex: Mediano, Obra-prima..." class="w-full bg-surface-950 border border-subtle rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div class="pt-3 border-t border-subtle flex justify-between items-center gap-2">
+                    <button type="button" id="delete-entry-btn" onclick="deleteCurrentEntry()" class="hidden h-10 px-3.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-medium transition">
+                        Excluir
+                    </button>
+                    <div class="flex gap-2 ml-auto">
+                        <button type="button" onclick="closeAddModal()" class="h-10 px-4 rounded-lg bg-surface-800 hover:bg-surface-700 text-xs font-medium text-slate-300 transition">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="h-10 px-5 rounded-lg bg-[#820AD1] hover:bg-[#9B30FF] text-xs font-medium text-white transition">
+                            Salvar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. EXPORT / BACKUP MODAL -->
+    <div id="export-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-surface-900 border-t sm:border border-subtle rounded-t-2xl sm:rounded-2xl max-w-lg w-full p-5 sm:p-6 sheet-safe sm:pb-6 shadow-2xl">
+            <div class="w-10 h-1 bg-surface-700 rounded-full mx-auto mb-3 sm:hidden"></div>
+            <div class="flex items-center justify-between pb-3.5 border-b border-subtle mb-4">
+                <div>
+                    <h2 class="text-sm font-semibold text-white">Exportacao e Backup</h2>
+                    <p class="text-[11px] text-slate-400">Relatorio de texto ou arquivo JSON portavel</p>
+                </div>
+                <button onclick="closeExportModal()" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <textarea id="export-textarea" readonly class="w-full h-52 sm:h-60 bg-surface-950 border border-subtle rounded-xl p-3.5 text-[11px] text-slate-300 font-mono focus:outline-none mb-4 leading-relaxed"></textarea>
+
+            <div class="flex flex-wrap gap-2">
+                <button onclick="copyExportText()" class="flex-1 h-10 px-4 rounded-lg bg-[#820AD1] hover:bg-[#9B30FF] text-white font-medium text-xs flex items-center justify-center gap-2 transition">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Copiar Texto</span>
+                </button>
+                <button onclick="downloadJson()" class="h-10 px-3.5 rounded-lg bg-surface-800 hover:bg-surface-700 border border-subtle text-slate-200 font-medium text-xs flex items-center gap-1.5 transition">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span>Baixar JSON</span>
+                </button>
+                <label class="cursor-pointer h-10 px-3.5 rounded-lg bg-surface-800 hover:bg-surface-700 border border-subtle text-slate-200 font-medium text-xs flex items-center gap-1.5 transition">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <span>Importar</span>
+                    <input type="file" accept=".json" onchange="importJson(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. RESET CONFIRMATION MODAL -->
+    <div id="reset-modal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-surface-900 border-t sm:border border-subtle rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-5 sm:p-6 sheet-safe sm:pb-6 shadow-2xl">
+            <h3 class="text-sm font-semibold text-white mb-1">Restaurar Base Original</h3>
+            <p class="text-xs text-slate-400 mb-5 leading-relaxed">Esta acao redefinira todos os status, avaliacoes e notas para a lista unificada original de 211 registros.</p>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeResetModal()" class="h-10 px-4 rounded-lg bg-surface-800 hover:bg-surface-700 text-xs font-medium text-slate-300 transition">
+                    Cancelar
+                </button>
+                <button onclick="confirmFactoryReset()" class="h-10 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-medium text-white transition">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification (Positioned above mobile bottom nav) -->
+    <div id="toast" class="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-50 hidden transform transition-all duration-200 translate-y-2 opacity-0 pointer-events-none">
+        <div class="bg-surface-800/95 backdrop-blur-md border border-white/15 text-slate-100 px-3.5 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-medium">
+            <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+            <span id="toast-text">Alteracao registrada</span>
+        </div>
+    </div>
+
+    <!-- ================= APPLICATION LOGIC ================= -->
+    <script>
+        const STORAGE_KEY = 'cinevault_v2_state';
+        const LEGACY_KEYS = ['cinevault_emannuel_petry_v2', 'cinevault_v1'];
+
+        // Complete Unified Dataset (197 Movies + 14 Series = 211 Entries, Zero Emojis)
+        const INITIAL_DATA = [
+            // 1. PRIORITY (17 items)
+            { id: 'p1', title: '12 Anos de Escravidão', type: 'movie', status: 'priority', genre: 'Drama & Biografia', subgenre: 'Drama Histórico', origin: 'both', note: '', rating: 0 },
+            { id: 'p2', title: '1922', type: 'movie', status: 'priority', genre: 'Suspense & Thriller', subgenre: 'Suspense / Thriller Psicológico', origin: 'both', note: '', rating: 0 },
+            { id: 'p3', title: 'À Espera de um Milagre', type: 'movie', status: 'priority', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'p4', title: 'À Procura da Felicidade', type: 'movie', status: 'priority', genre: 'Drama & Biografia', subgenre: 'Drama Biográfico', origin: 'both', note: '', rating: 0 },
+            { id: 'p5', title: 'A Órfã', type: 'movie', status: 'priority', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'both', note: '', rating: 0 },
+            { id: 'p6', title: 'Até o Último Homem', type: 'movie', status: 'priority', genre: 'Drama & Biografia', subgenre: 'Ação / Drama / Guerra', origin: 'both', note: '', rating: 0 },
+            { id: 'p7', title: 'Clube da Luta', type: 'movie', status: 'priority', genre: 'Suspense & Thriller', subgenre: 'Ação / Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'p8', title: 'Durante a Tormenta', type: 'movie', status: 'priority', genre: 'Suspense & Thriller', subgenre: 'Suspense / Mistério', origin: 'both', note: '', rating: 0 },
+            { id: 'p9', title: 'Eli', type: 'movie', status: 'priority', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'p10', title: 'Eu Sou a Lenda', type: 'movie', status: 'priority', genre: 'Ação & Ficção', subgenre: 'Drama / Ação / Ficção', origin: 'both', note: '', rating: 0 },
+            { id: 'p11', title: 'Fragmentado', type: 'movie', status: 'priority', genre: 'Suspense & Thriller', subgenre: 'Suspense / Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'p12', title: 'Harry Potter - Toda a Saga', type: 'movie', status: 'priority', genre: 'Ação & Ficção', subgenre: 'Aventura / Fantasia', origin: 'both', note: '', rating: 0 },
+            { id: 'p13', title: 'Jogo Perigoso', type: 'movie', status: 'priority', genre: 'Suspense & Thriller', subgenre: 'Thriller Psicológico', origin: 'both', note: '', rating: 0 },
+            { id: 'p14', title: 'O Grande Gatsby', type: 'movie', status: 'priority', genre: 'Drama & Biografia', subgenre: 'Romance / Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'p15', title: 'O Silêncio dos Inocentes', type: 'movie', status: 'priority', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'both', note: '', rating: 0 },
+            { id: 'p16', title: 'Um Sonho de Liberdade', type: 'movie', status: 'priority', genre: 'Drama & Biografia', subgenre: 'Drama Clássico', origin: 'both', note: '', rating: 0 },
+            { id: 'p17', title: 'V de Vingança', type: 'movie', status: 'priority', genre: 'Ação & Ficção', subgenre: 'Ação / Ficção Distópica', origin: 'user', note: '', rating: 0 },
+
+            // 2. QUEUE - MANU & BOTH (36 items)
+            { id: 'u1', title: '2 Minutos Além do Infinito', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ficção / Comédia • HBO', origin: 'user', note: '', rating: 0 },
+            { id: 'u2', title: 'Aftersun', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'user', note: '', rating: 0 },
+            { id: 'u3', title: 'Antes do Amanhecer', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Romance / Drama', origin: 'user', note: '', rating: 0 },
+            { id: 'u4', title: 'Argentina 1985', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama Histórico • Amazon', origin: 'user', note: '', rating: 0 },
+            { id: 'u5', title: 'As Vantagens de Ser Invisível', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'u6', title: 'Ataque dos Cães', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'user', note: '', rating: 0 },
+            { id: 'u7', title: 'Belfast', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama Histórico', origin: 'user', note: '', rating: 0 },
+            { id: 'u8', title: 'Clube dos Cinco', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Clássico', origin: 'both', note: '', rating: 0 },
+            { id: 'u9', title: 'Corra!', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Crítica Social', origin: 'both', note: '', rating: 0 },
+            { id: 'u10', title: 'Decisão de Partir', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Romance', origin: 'user', note: '', rating: 0 },
+            { id: 'u11', title: 'Dois Caras Legais', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Ação', origin: 'user', note: '', rating: 0 },
+            { id: 'u12', title: 'Dublê do Diabo', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'História Real / Ação', origin: 'both', note: '', rating: 0 },
+            { id: 'u13', title: 'Joias Brutas', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Crime', origin: 'user', note: '', rating: 0 },
+            { id: 'u14', title: 'Memento / Amnésia', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Mistério', origin: 'user', note: '', rating: 0 },
+            { id: 'u15', title: 'Men - Faces do Medo', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'user', note: '', rating: 0 },
+            { id: 'u16', title: 'Missing / Desaparecida', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'u17', title: 'O Advogado do Diabo', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Clássico / Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'u18', title: 'O Auto da Compadecida', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Clássico', origin: 'user', note: '', rating: 0 },
+            { id: 'u19', title: 'O Brilho Eterno de uma Mente sem Lembranças', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Romance / Drama / Ficção', origin: 'both', note: '', rating: 0 },
+            { id: 'u20', title: 'O Estranho Thomas', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Fantasia', origin: 'user', note: '', rating: 0 },
+            { id: 'u21', title: 'O Fotógrafo de Mauthausen', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama Histórico', origin: 'both', note: '', rating: 0 },
+            { id: 'u22', title: 'O Grande Truque', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Mágica / Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'u23', title: 'O Hobbit - Trilogia', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Aventura / Fantasia', origin: 'both', note: '', rating: 0 },
+            { id: 'u24', title: 'O Iluminado', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'u25', title: 'O Poderoso Chefão 2', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Crime / Drama', origin: 'user', note: '', rating: 0 },
+            { id: 'u26', title: 'O Senhor dos Anéis - Trilogia', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Aventura / Fantasia', origin: 'both', note: '', rating: 0 },
+            { id: 'u27', title: 'Oldboy', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Ação / Suspense', origin: 'user', note: '', rating: 0 },
+            { id: 'u28', title: 'On the Count of Three', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia Dramática', origin: 'user', note: '', rating: 0 },
+            { id: 'u29', title: 'Os Infiltrados', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Policial', origin: 'both', note: '', rating: 0 },
+            { id: 'u30', title: 'Os Oito de Chicago', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama Histórico', origin: 'user', note: '', rating: 0 },
+            { id: 'u31', title: 'Perfume de Mulher', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'user', note: '', rating: 0 },
+            { id: 'u32', title: 'Projeto Almanaque', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ficção Científica', origin: 'user', note: '', rating: 0 },
+            { id: 'u33', title: 'Pulp Fiction', type: 'movie', status: 'priority', genre: 'Ação & Ficção', subgenre: 'Ação / Clássico', origin: 'both', note: 'Dupla marcacao na lista original (Fila e Prioridade)', rating: 0 },
+            { id: 'u34', title: 'Scarface', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / Crime', origin: 'both', note: '', rating: 0 },
+            { id: 'u35', title: 'Seven: Os Sete Crimes Capitais', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense Policial', origin: 'both', note: '', rating: 0 },
+            { id: 'u36', title: 'Trainspotting', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Humor Ácido / Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'u37', title: 'Uma Mente Brilhante', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama Biográfico', origin: 'user', note: '', rating: 0 },
+
+            // 3. QUEUE - BROTHER'S CURATION (102 items)
+            { id: 'b1', title: '22 de Julho', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller', origin: 'brother', note: '', rating: 0 },
+            { id: 'b2', title: 'A Acompanhante Perfeita', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Ficção / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b3', title: 'A Autópsia de Jane Doe', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b4', title: 'A Sala dos Professores', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b5', title: 'A Última Parada no Arizona', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b6', title: 'Chave Mestra', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b7', title: 'Frio nos Ossos', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b8', title: 'Fuja', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b9', title: 'Garota Exemplar', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Drama / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b10', title: 'Herege', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b11', title: 'Jurado Nº 2', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b12', title: 'Lapso Temporal', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Viagem no Tempo / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b13', title: 'Louca Obsessão', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b14', title: 'M3GAN', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b15', title: 'Memórias de um Assassino', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller Policial', origin: 'brother', note: '', rating: 0 },
+            { id: 'b16', title: 'Night Shift', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b17', title: 'Nós', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b18', title: 'Número 23', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b19', title: 'O Alfaiate', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Ação / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b20', title: 'O Assassino da Lua das Flores', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b21', title: 'O Diabo de Cada Dia', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b22', title: 'O Presente', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b23', title: 'Observador', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b24', title: 'Obsessão', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b25', title: 'Paranoia', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b26', title: 'Pecadores', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller', origin: 'brother', note: '', rating: 0 },
+            { id: 'b27', title: 'Psicopata Americano', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b28', title: 'Quarto 1408', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller Psicológico', origin: 'brother', note: '', rating: 0 },
+            { id: 'b29', title: 'Roubando Vidas', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Crime', origin: 'brother', note: '', rating: 0 },
+            { id: 'b30', title: 'Saltburn', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller / Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b31', title: 'Socorro!', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller / Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b32', title: 'Strange Darling', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b33', title: 'Terra Selvagem', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller / Investigativo', origin: 'brother', note: '', rating: 0 },
+            { id: 'b34', title: 'Três Anúncios Para Um Crime', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b35', title: 'True Story', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Thriller / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b36', title: 'Um Contratempo', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Mistério', origin: 'brother', note: '', rating: 0 },
+            { id: 'b37', title: 'Um Lugar Silencioso 1 e 2', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Ficção', origin: 'brother', note: '', rating: 0 },
+            { id: 'b38', title: 'Versões de um Crime', type: 'movie', status: 'queue', genre: 'Suspense & Thriller', subgenre: 'Suspense / Mistério', origin: 'brother', note: '', rating: 0 },
+            { id: 'b39', title: 'A Bruxa', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b40', title: 'A Substância', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Ficção', origin: 'brother', note: '', rating: 0 },
+            { id: 'b41', title: 'A Visita', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b42', title: 'Espíritos - A Morte Está ao Seu Lado', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b43', title: 'Extermínio', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b44', title: 'Fale Comigo', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b45', title: 'Hakum - O Pesadelo da Bruxa', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b46', title: 'Lights Out', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b47', title: 'Mãe!', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b48', title: 'Na Companhia do Medo', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b49', title: 'O Telefone Preto', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Suspense / Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b50', title: 'Oculus', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b51', title: 'Presença', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b52', title: 'REC', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror', origin: 'brother', note: '', rating: 0 },
+            { id: 'b53', title: 'The Lodge', type: 'movie', status: 'queue', genre: 'Terror', subgenre: 'Terror Psicológico', origin: 'brother', note: '', rating: 0 },
+            { id: 'b54', title: 'A Caça', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b55', title: 'A Vida é Bela', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b56', title: 'Arremessando Alto', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Esportes / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b57', title: 'Beleza Americana', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b58', title: 'BlackBerry', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'História / Biografia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b59', title: 'Cargo', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b60', title: 'Gangues de Nova York', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Crime', origin: 'brother', note: '', rating: 0 },
+            { id: 'b61', title: 'Gênio Indomável', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b62', title: 'Invencível', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Guerra / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b63', title: 'Menina de Ouro', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Superação', origin: 'brother', note: '', rating: 0 },
+            { id: 'b64', title: 'Meu Nome é Rádio', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b65', title: 'Na Natureza Selvagem', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Aventura / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b66', title: 'O Irlandês', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Crime', origin: 'brother', note: '', rating: 0 },
+            { id: 'b67', title: 'O Juiz', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b68', title: 'O Pacto', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Guerra / Ação', origin: 'brother', note: '', rating: 0 },
+            { id: 'b69', title: 'O Profissional', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Ação', origin: 'brother', note: '', rating: 0 },
+            { id: 'b70', title: 'O Regresso', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Aventura', origin: 'brother', note: '', rating: 0 },
+            { id: 'b71', title: 'O Rei', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Guerra / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b72', title: 'O Último Duelo', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Ação', origin: 'brother', note: '', rating: 0 },
+            { id: 'b73', title: 'Outra Beleza Americana', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b74', title: 'Parasita', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b75', title: 'Quem Quer Ser um Milionário?', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b76', title: 'Sleepers: A Vingança Adormecida', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Crime', origin: 'brother', note: '', rating: 0 },
+            { id: 'b77', title: 'Sobre Meninos e Lobos', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama / Mistério', origin: 'brother', note: '', rating: 0 },
+            { id: 'b78', title: 'Uma Lição de Amor', type: 'movie', status: 'queue', genre: 'Drama & Biografia', subgenre: 'Drama • Amazon', origin: 'brother', note: '', rating: 0 },
+            { id: 'b79', title: 'A Praia', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Aventura / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b80', title: 'Alpha Dog', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / História Real', origin: 'brother', note: '', rating: 0 },
+            { id: 'b81', title: 'Corpo Fechado', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b82', title: 'Guerra dos Mundos', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ficção / Ação', origin: 'brother', note: '', rating: 0 },
+            { id: 'b83', title: 'Missão no Mar Vermelho', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b84', title: 'O Plano Perfeito', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b85', title: 'O Senhor das Armas', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b86', title: 'Prenda-me se For Capaz', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Aventura / Biografia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b87', title: 'Sem Limites', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / Ficção', origin: 'brother', note: '', rating: 0 },
+            { id: 'b88', title: 'Snowden: Herói ou Vilão', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Espionagem / Biografia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b89', title: 'Som da Liberdade', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Ação / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b90', title: 'Turbo Kid', type: 'movie', status: 'queue', genre: 'Ação & Ficção', subgenre: 'Aventura / Ficção', origin: 'brother', note: '', rating: 0 },
+            { id: 'b91', title: 'A Garota Ideal', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b92', title: 'Dìdi', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Drama', origin: 'brother', note: '', rating: 0 },
+            { id: 'b93', title: 'Eu Me Importo', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Suspense', origin: 'brother', note: '', rating: 0 },
+            { id: 'b94', title: 'Identidades em Jogo', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Ficção / Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b95', title: 'Não é Mais um Besteirol Americano', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b96', title: 'Novocaine', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Ação', origin: 'brother', note: '', rating: 0 },
+            { id: 'b97', title: 'Palm Springs', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia / Ficção', origin: 'brother', note: '', rating: 0 },
+            { id: 'b98', title: 'Passe Livre', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b99', title: 'Penetras Bons de Bico', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b100', title: 'Relatos Selvagens', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Dramédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b101', title: 'Toc Toc', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 'b102', title: 'Triângulo da Tristeza', type: 'movie', status: 'queue', genre: 'Comédia', subgenre: 'Dramédia', origin: 'brother', note: '', rating: 0 },
+
+            // 4. WATCHED / COMPLETED (47 items)
+            { id: 'w1', title: 'A Espreita do Mal', type: 'movie', status: 'watched', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'w2', title: 'A Ilha do Medo', type: 'movie', status: 'watched', genre: 'Suspense & Thriller', subgenre: 'Thriller Psicológico', origin: 'both', note: '', rating: 0 },
+            { id: 'w3', title: 'A Lista de Schindler', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama Histórico', origin: 'user', note: '', rating: 0 },
+            { id: 'w4', title: 'A Origem', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Ficção / Ação', origin: 'user', note: '', rating: 0 },
+            { id: 'w5', title: 'Batman', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Ação / Policial', origin: 'user', note: '', rating: 0 },
+            { id: 'w6', title: 'Cães de Guerra', type: 'movie', status: 'watched', genre: 'Comédia', subgenre: 'Ação / Comédia', origin: 'both', note: '', rating: 0 },
+            { id: 'w7', title: 'Capitão Fantástico', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Comédia', origin: 'both', note: '', rating: 0 },
+            { id: 'w8', title: 'Casamento Sangrento', type: 'movie', status: 'watched', genre: 'Terror', subgenre: 'Terror / Comédia', origin: 'user', note: '', rating: 0 },
+            { id: 'w9', title: 'Cidade de Deus', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Ação', origin: 'both', note: '', rating: 0 },
+            { id: 'w10', title: 'Coringa', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'w11', title: 'Django Livre', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Ação / Faroeste', origin: 'both', note: '', rating: 0 },
+            { id: 'w12', title: 'Doutor Sono', type: 'movie', status: 'watched', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'w13', title: 'Druk - Mais uma Rodada', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Comédia', origin: 'user', note: '', rating: 0 },
+            { id: 'w14', title: 'Era Uma Vez em... Hollywood', type: 'movie', status: 'watched', genre: 'Comédia', subgenre: 'Comédia / Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'w15', title: 'Forrest Gump', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Aventura / Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'w16', title: 'Free Guy', type: 'movie', status: 'watched', genre: 'Comédia', subgenre: 'Ficção / Aventura', origin: 'both', note: '', rating: 0 },
+            { id: 'w17', title: 'Gato de Botas 2', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Animação / Aventura', origin: 'user', note: '', rating: 0 },
+            { id: 'w18', title: 'Green Book', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Comédia', origin: 'both', note: '', rating: 0 },
+            { id: 'w19', title: 'Hereditário', type: 'movie', status: 'watched', genre: 'Terror', subgenre: 'Terror', origin: 'both', note: '', rating: 0 },
+            { id: 'w20', title: 'Hush - A Morte Ouve', type: 'movie', status: 'watched', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'w21', title: 'Interestelar', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Ficção Científica / Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'w22', title: 'Jogador Nº 1', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Aventura / Ficção', origin: 'both', note: '', rating: 0 },
+            { id: 'w23', title: 'Nada de Novo no Front', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Guerra / Drama • Netflix', origin: 'user', note: '', rating: 0 },
+            { id: 'w24', title: 'O Abutre', type: 'movie', status: 'watched', genre: 'Suspense & Thriller', subgenre: 'Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'w25', title: 'O Chamado 1 e 2', type: 'movie', status: 'watched', genre: 'Terror', subgenre: 'Terror / Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'w26', title: 'O Diabo e o Padre Amorth', type: 'movie', status: 'watched', genre: 'Terror', subgenre: 'Documentário / Terror', origin: 'user', note: '', rating: 0 },
+            { id: 'w27', title: 'O Grande Hotel Budapeste', type: 'movie', status: 'watched', genre: 'Comédia', subgenre: 'Comédia / Aventura', origin: 'both', note: '', rating: 0 },
+            { id: 'w28', title: 'O Livro de Eli', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Ficção Científica / Ação', origin: 'both', note: '', rating: 0 },
+            { id: 'w29', title: 'O Lobo de Wall Street', type: 'movie', status: 'watched', genre: 'Comédia', subgenre: 'Comédia / Biografia', origin: 'both', note: '', rating: 0 },
+            { id: 'w30', title: 'O Menino que Descobriu o Vento', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'w31', title: 'O Menu', type: 'movie', status: 'watched', genre: 'Suspense & Thriller', subgenre: 'Suspense / Sátira', origin: 'user', note: 'Mediano', rating: 3 },
+            { id: 'w32', title: 'O Pianista', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Guerra', origin: 'user', note: '', rating: 0 },
+            { id: 'w33', title: 'O Pior Vizinho do Mundo', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Comédia', origin: 'both', note: '', rating: 0 },
+            { id: 'w34', title: 'O Poderoso Chefão 1', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Crime / Drama', origin: 'user', note: '', rating: 0 },
+            { id: 'w35', title: 'O Predestinado', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Ficção / Suspense', origin: 'user', note: '', rating: 0 },
+            { id: 'w36', title: 'O Show de Truman', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Comédia', origin: 'both', note: '', rating: 0 },
+            { id: 'w37', title: 'Os Banshees de Inisherin', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Comédia', origin: 'user', note: '', rating: 0 },
+            { id: 'w38', title: 'Os Fabelmans', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama Biográfico', origin: 'both', note: '', rating: 0 },
+            { id: 'w39', title: 'Os Oito Odiados', type: 'movie', status: 'watched', genre: 'Ação & Ficção', subgenre: 'Faroeste / Suspense', origin: 'user', note: '', rating: 0 },
+            { id: 'w40', title: 'Os Suspeitos', type: 'movie', status: 'watched', genre: 'Suspense & Thriller', subgenre: 'Thriller / Suspense', origin: 'both', note: '', rating: 0 },
+            { id: 'w41', title: 'Questão de Tempo', type: 'movie', status: 'watched', genre: 'Comédia', subgenre: 'Comédia Romântica', origin: 'both', note: '', rating: 0 },
+            { id: 'w42', title: 'Sete Vidas', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'w43', title: 'Spotlight - Segredos Revelados', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Investigativo', origin: 'both', note: '', rating: 0 },
+            { id: 'w44', title: 'Superbad - É Hoje', type: 'movie', status: 'watched', genre: 'Comédia', subgenre: 'Comédia', origin: 'both', note: '', rating: 0 },
+            { id: 'w45', title: 'Um Homem Entre Gigantes', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama', origin: 'both', note: '', rating: 0 },
+            { id: 'w46', title: 'Um Lugar Bem Longe Daqui', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Mistério', origin: 'user', note: '', rating: 0 },
+            { id: 'w47', title: 'Whiplash', type: 'movie', status: 'watched', genre: 'Drama & Biografia', subgenre: 'Drama / Música', origin: 'user', note: '', rating: 0 },
+
+            // 5. RECOMMENDED SERIES (14 items)
+            { id: 's1', title: 'Breaking Bad', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Drama / Crime', origin: 'brother', note: '', rating: 0 },
+            { id: 's2', title: 'Blue Mountain State', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Comédia', origin: 'brother', note: '', rating: 0 },
+            { id: 's3', title: 'Chernobyl', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Drama Histórico • HBO', origin: 'brother', note: '', rating: 0 },
+            { id: 's4', title: 'Free Solo', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Documentário • Disney+', origin: 'brother', note: '', rating: 0 },
+            { id: 's5', title: 'How I Met Your Mother', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Comédia / Sitcom', origin: 'brother', note: '', rating: 0 },
+            { id: 's6', title: 'Na Mira do Júri', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Comédia • Amazon', origin: 'brother', note: '', rating: 0 },
+            { id: 's7', title: 'Round 6', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Suspense / Drama • Netflix', origin: 'brother', note: '', rating: 0 },
+            { id: 's8', title: 'Succession', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Drama • HBO', origin: 'brother', note: '', rating: 0 },
+            { id: 's9', title: 'The Big Bang Theory', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Comédia / Sitcom', origin: 'brother', note: '', rating: 0 },
+            { id: 's10', title: 'The Boys + Gen V', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Ação / Sátira • Amazon', origin: 'brother', note: '', rating: 0 },
+            { id: 's11', title: 'The Office', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Comédia / Sitcom', origin: 'brother', note: '', rating: 0 },
+            { id: 's12', title: 'The Witcher', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Fantasia / Ação • Netflix', origin: 'brother', note: '', rating: 0 },
+            { id: 's13', title: 'What We Do in the Shadows', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Comédia • Star+', origin: 'brother', note: '', rating: 0 },
+            { id: 's14', title: 'Black Mirror', type: 'series', status: 'queue', genre: 'Série / Doc', subgenre: 'Ficção / Antologia • Netflix', origin: 'brother', note: '', rating: 0 }
+        ];
+
+        // Application State
+        let catalog = [];
+        let state = {
+            search: '',
+            status: 'all',
+            genre: 'all',
+            origin: 'all',
+            sort: 'status',
+            view: 'grid'
+        };
+
+        // Initialization & Automatic Migration from v1/v2 keys
+        function init() {
+            try {
+                let raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) {
+                    for (const legacyKey of LEGACY_KEYS) {
+                        const legacyData = localStorage.getItem(legacyKey);
+                        if (legacyData) {
+                            raw = legacyData;
+                            break;
+                        }
+                    }
+                }
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        catalog = parsed;
+                        persist();
+                    } else {
+                        catalog = JSON.parse(JSON.stringify(INITIAL_DATA));
+                        persist();
+                    }
+                } else {
+                    catalog = JSON.parse(JSON.stringify(INITIAL_DATA));
+                    persist();
+                }
+            } catch (e) {
+                catalog = JSON.parse(JSON.stringify(INITIAL_DATA));
+            }
+
+            // Keyboard shortcut '/' for desktop search
+            window.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    document.getElementById('search-input').focus();
+                }
+            });
+
+            syncNavigationStyles();
+            render();
+        }
+
+        function persist() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(catalog));
+            } catch (err) {
+                console.error('Storage persistence failed:', err);
+            }
+        }
+
+        // Mobile Slide-Over Drawer Controls
+        function openMobileDrawer() {
+            const drawer = document.getElementById('mobile-drawer');
+            const backdrop = document.getElementById('mobile-drawer-backdrop');
+            backdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                drawer.classList.remove('-translate-x-full');
+            });
+        }
+
+        function closeMobileDrawer() {
+            const drawer = document.getElementById('mobile-drawer');
+            const backdrop = document.getElementById('mobile-drawer-backdrop');
+            drawer.classList.add('-translate-x-full');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 200);
+        }
+
+        // Helpers
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        function getOriginLabel(code) {
+            if (code === 'user') return 'Manu';
+            if (code === 'both') return 'Ambos';
+            return 'Irmao';
+        }
+
+        // Update Telemetry Counters
+        function updateCounters() {
+            const total = catalog.length;
+            const priority = catalog.filter(i => i.status === 'priority').length;
+            const queue = catalog.filter(i => i.status === 'queue').length;
+            const watched = catalog.filter(i => i.status === 'watched').length;
+            const pending = priority + queue;
+            const series = catalog.filter(i => i.type === 'series').length;
+            const pct = total > 0 ? Math.round((watched / total) * 100) : 0;
+
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-priority').textContent = priority;
+            document.getElementById('kpi-queue').textContent = queue;
+            document.getElementById('kpi-watched').textContent = watched;
+            document.getElementById('kpi-watched-pct').textContent = `${pct}%`;
+
+            // Update all [data-count] badges in both desktop sidebar & mobile drawer
+            const countMap = { all: total, pending, priority, queue, watched, series };
+            document.querySelectorAll('[data-count]').forEach(el => {
+                const key = el.getAttribute('data-count');
+                if (countMap[key] !== undefined) el.textContent = countMap[key];
+            });
+
+            // Progress bars
+            document.getElementById('sidebar-percent').textContent = `${pct}%`;
+            document.getElementById('sidebar-progress').style.width = `${pct}%`;
+            document.getElementById('drawer-percent').textContent = `${pct}%`;
+            document.getElementById('drawer-progress').style.width = `${pct}%`;
+        }
+
+        // Filtering & Sorting Engine
+        function getFilteredCatalog() {
+            return catalog.filter(item => {
+                if (state.search) {
+                    const q = state.search.toLowerCase();
+                    const inTitle = item.title.toLowerCase().includes(q);
+                    const inSub = (item.subgenre || '').toLowerCase().includes(q);
+                    const inGenre = (item.genre || '').toLowerCase().includes(q);
+                    const inNote = (item.note || '').toLowerCase().includes(q);
+                    if (!inTitle && !inSub && !inGenre && !inNote) return false;
+                }
+
+                if (state.status === 'priority' && item.status !== 'priority') return false;
+                if (state.status === 'queue' && item.status !== 'queue') return false;
+                if (state.status === 'watched' && item.status !== 'watched') return false;
+                if (state.status === 'pending' && (item.status !== 'priority' && item.status !== 'queue')) return false;
+                if (state.status === 'series' && item.type !== 'series') return false;
+
+                if (state.genre !== 'all' && item.genre !== state.genre) return false;
+                if (state.origin !== 'all' && item.origin !== state.origin) return false;
+
+                return true;
+            }).sort((a, b) => {
+                if (state.sort === 'alpha') {
+                    return a.title.localeCompare(b.title, 'pt-BR');
+                }
+                if (state.sort === 'rating') {
+                    return (b.rating || 0) - (a.rating || 0) || a.title.localeCompare(b.title, 'pt-BR');
+                }
+                const rank = { priority: 1, queue: 2, watched: 3 };
+                if (rank[a.status] !== rank[b.status]) {
+                    return rank[a.status] - rank[b.status];
+                }
+                return a.title.localeCompare(b.title, 'pt-BR');
+            });
+        }
+
+        // SVG Stars Generator
+        function buildStarsHtml(item) {
+            let html = '';
+            for (let s = 1; s <= 5; s++) {
+                const active = (item.rating || 0) >= s;
+                html += `
+                    <button onclick="setRating('${item.id}', ${s})" title="Avaliar ${s}/5" class="p-1 transition ${active ? 'text-purple-400' : 'text-slate-700 hover:text-slate-400'}">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="${active ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.75">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                    </button>
+                `;
+            }
+            return html;
+        }
+
+        // Status Badge HTML Generator (Emerald Watched, Amber Priority, Slate Queue)
+        function buildStatusBadge(status) {
+            if (status === 'priority') {
+                return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/25">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Prioridade
+                </span>`;
+            }
+            if (status === 'watched') {
+                return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Concluido
+                </span>`;
+            }
+            return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium bg-surface-800 text-slate-300 border border-subtle">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Na Fila
+            </span>`;
+        }
+
+        // Quick 1-Tap Status Cycle for Mobile Compact List
+        function cycleItemStatus(id) {
+            const item = catalog.find(i => i.id === id);
+            if (!item) return;
+            const order = ['queue', 'priority', 'watched'];
+            const next = order[(order.indexOf(item.status) + 1) % order.length];
+            setItemStatus(id, next);
+        }
+
+        // Render Catalog Views
+        function render() {
+            updateCounters();
+            const list = getFilteredCatalog();
+
+            const gridEl = document.getElementById('catalog-grid');
+            const tableWrapperEl = document.getElementById('catalog-table-wrapper');
+            const mobileListEl = document.getElementById('catalog-mobile-list');
+            const tableBodyEl = document.getElementById('catalog-table-body');
+            const emptyEl = document.getElementById('empty-state');
+            const counterEl = document.getElementById('results-counter');
+            const clearFiltersBtn = document.getElementById('clear-filters-btn');
+
+            const isFiltered = state.search !== '' || state.status !== 'all' || state.genre !== 'all' || state.origin !== 'all';
+            clearFiltersBtn.classList.toggle('hidden', !isFiltered);
+            counterEl.textContent = `Exibindo ${list.length} de ${catalog.length} registros`;
+
+            if (list.length === 0) {
+                gridEl.classList.add('hidden');
+                tableWrapperEl.classList.add('hidden');
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+
+            if (state.view === 'grid') {
+                tableWrapperEl.classList.add('hidden');
+                gridEl.classList.remove('hidden');
+
+                gridEl.innerHTML = list.map(item => `
+                    <div class="surface-card rounded-xl p-4 flex flex-col justify-between group">
+                        <div>
+                            <!-- Top Meta Row -->
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                ${buildStatusBadge(item.status)}
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-surface-800 text-slate-400 border border-subtle">
+                                        ${getOriginLabel(item.origin)}
+                                    </span>
+                                    <button onclick="openEditModal('${item.id}')" class="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-surface-800 transition" title="Editar registro">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Title & Format Badge -->
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <h3 class="font-semibold text-sm text-white leading-snug group-hover:text-purple-300 transition">
+                                    ${escapeHtml(item.title)}
+                                </h3>
+                                ${item.type === 'series' ? `<span class="shrink-0 font-mono text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">Serie</span>` : ''}
+                            </div>
+
+                            <!-- Category & Subgenre -->
+                            <p class="text-xs text-slate-400 mb-3">
+                                <span class="text-slate-300">${escapeHtml(item.genre)}</span>
+                                ${item.subgenre ? `<span class="text-slate-500"> — ${escapeHtml(item.subgenre)}</span>` : ''}
+                            </p>
+
+                            <!-- Personal Note -->
+                            ${item.note ? `
+                                <div class="mb-3 px-2.5 py-1.5 rounded-lg bg-surface-950 border border-subtle text-[11px] text-slate-300 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-purple-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                                    <span class="truncate">${escapeHtml(item.note)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Card Footer: Rating & 40px Touch-Optimized Segmented Control -->
+                        <div class="pt-3 border-t border-subtle mt-1">
+                            <div class="flex items-center justify-between mb-2.5">
+                                <span class="text-[11px] text-slate-500">Classificacao</span>
+                                <div class="flex items-center -mr-1">
+                                    ${buildStarsHtml(item)}
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-1 bg-surface-950 p-1 rounded-xl border border-subtle">
+                                <button onclick="setItemStatus('${item.id}', 'priority')" class="min-h-[38px] rounded-lg text-[11px] font-medium transition ${item.status === 'priority' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm' : 'text-slate-400 hover:text-white'}">
+                                    Prioridade
+                                </button>
+                                <button onclick="setItemStatus('${item.id}', 'queue')" class="min-h-[38px] rounded-lg text-[11px] font-medium transition ${item.status === 'queue' ? 'bg-surface-700 text-white border border-white/10 shadow-sm' : 'text-slate-400 hover:text-white'}">
+                                    Na Fila
+                                </button>
+                                <button onclick="setItemStatus('${item.id}', 'watched')" class="min-h-[38px] rounded-lg text-[11px] font-medium transition ${item.status === 'watched' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}">
+                                    Concluido
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                // COMPACT LIST / TABLE VIEW
+                gridEl.classList.add('hidden');
+                tableWrapperEl.classList.remove('hidden');
+
+                // 1. Mobile Spotify-style Compact Media Rows (No horizontal scroll)
+                mobileListEl.innerHTML = list.map(item => {
+                    const dotColor = item.status === 'priority' ? 'bg-amber-400' : (item.status === 'watched' ? 'bg-emerald-400' : 'bg-slate-500');
+                    const statusLabel = item.status === 'priority' ? 'Prioridade' : (item.status === 'watched' ? 'Concluido' : 'Na Fila');
+                    const statusBtnStyle = item.status === 'priority'
+                        ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                        : (item.status === 'watched' ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-surface-800 text-slate-300 border-subtle');
+
+                    return `
+                        <div class="p-3.5 flex items-center justify-between gap-3 active:bg-surface-800/60 transition">
+                            <div class="min-w-0 flex-1" onclick="openEditModal('${item.id}')">
+                                <div class="flex items-center gap-2 mb-0.5">
+                                    <span class="w-2 h-2 rounded-full shrink-0 ${dotColor}"></span>
+                                    <h4 class="font-medium text-xs text-white truncate">${escapeHtml(item.title)}</h4>
+                                    ${item.type === 'series' ? `<span class="font-mono text-[9px] uppercase px-1 py-0.2 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 shrink-0">Serie</span>` : ''}
+                                </div>
+                                <div class="text-[11px] text-slate-400 truncate pl-4">
+                                    <span>${escapeHtml(item.genre)}</span>
+                                    <span class="text-slate-600"> • </span>
+                                    <span class="font-mono text-[10px] text-slate-500">${getOriginLabel(item.origin)}</span>
+                                    ${item.note ? `<span class="text-purple-300"> • ${escapeHtml(item.note)}</span>` : ''}
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button onclick="cycleItemStatus('${item.id}')" class="h-8 px-2.5 rounded-lg border text-[11px] font-medium transition ${statusBtnStyle}">
+                                    ${statusLabel}
+                                </button>
+                                <button onclick="openEditModal('${item.id}')" class="h-8 w-8 rounded-lg bg-surface-800 border border-subtle flex items-center justify-center text-slate-400 hover:text-white">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // 2. Desktop Multi-Column Table
+                tableBodyEl.innerHTML = list.map(item => `
+                    <tr class="hover:bg-surface-800/60 transition group">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-2 h-2 rounded-full shrink-0 ${item.status === 'priority' ? 'bg-amber-400' : (item.status === 'watched' ? 'bg-emerald-400' : 'bg-slate-500')}"></span>
+                                <div>
+                                    <div class="font-medium text-white flex items-center gap-2">
+                                        <span>${escapeHtml(item.title)}</span>
+                                        ${item.type === 'series' ? `<span class="font-mono text-[9px] uppercase px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">Serie</span>` : ''}
+                                        ${item.note ? `<span class="text-[11px] text-purple-300 bg-brand/15 px-1.5 py-0.2 rounded border border-purple-500/20">${escapeHtml(item.note)}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 text-slate-300">
+                            <div>${escapeHtml(item.genre)}</div>
+                            <div class="text-[11px] text-slate-500">${escapeHtml(item.subgenre || '')}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-surface-800 text-slate-400 border border-subtle">
+                                ${getOriginLabel(item.origin)}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center">${buildStarsHtml(item)}</div>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="inline-flex items-center justify-end gap-1.5">
+                                <select onchange="setItemStatus('${item.id}', this.value)" class="bg-surface-950 border border-subtle rounded-md px-2.5 py-1.5 text-[11px] text-slate-200 focus:outline-none focus:border-purple-500">
+                                    <option value="priority" ${item.status === 'priority' ? 'selected' : ''}>Prioridade</option>
+                                    <option value="queue" ${item.status === 'queue' ? 'selected' : ''}>Na Fila</option>
+                                    <option value="watched" ${item.status === 'watched' ? 'selected' : ''}>Concluido</option>
+                                </select>
+                                <button onclick="openEditModal('${item.id}')" class="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-surface-700 transition" title="Editar">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // State Mutations
+        function setItemStatus(id, newStatus) {
+            const item = catalog.find(i => i.id === id);
+            if (!item) return;
+            item.status = newStatus;
+            persist();
+            render();
+
+            const msg = {
+                priority: 'Marcado como Prioridade',
+                queue: 'Movido para a Fila',
+                watched: 'Marcado como Concluido'
+            };
+            notify(msg[newStatus]);
+        }
+
+        function setRating(id, stars) {
+            const item = catalog.find(i => i.id === id);
+            if (!item) return;
+            item.rating = item.rating === stars ? 0 : stars;
+            persist();
+            render();
+        }
+
+        // Filter Setters
+        function handleSearch(val) {
+            state.search = val.trim();
+            document.getElementById('clear-search-btn').classList.toggle('hidden', state.search === '');
+            render();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            handleSearch('');
+        }
+
+        function setStatusFilter(status) {
+            state.status = status;
+            syncNavigationStyles();
+            render();
+        }
+
+        function setGenreFilter(genre) {
+            state.genre = genre;
+            syncNavigationStyles();
+            render();
+        }
+
+        function setOriginFilter(origin) {
+            state.origin = origin;
+            syncNavigationStyles();
+            render();
+        }
+
+        function setSortOrder(sort) {
+            state.sort = sort;
+            document.getElementById('sort-select').value = sort;
+            document.getElementById('mobile-sort-select').value = sort;
+            render();
+        }
+
+        function setViewMode(mode) {
+            state.view = mode;
+            syncNavigationStyles();
+            render();
+        }
+
+        function resetAllFilters() {
+            state.search = '';
+            state.status = 'all';
+            state.genre = 'all';
+            state.origin = 'all';
+            state.sort = 'status';
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            document.getElementById('sort-select').value = 'status';
+            document.getElementById('mobile-sort-select').value = 'status';
+            syncNavigationStyles();
+            render();
+        }
+
+        function syncNavigationStyles() {
+            // Desktop & Drawer Status Nav
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const active = btn.dataset.nav === state.status;
+                btn.className = active
+                    ? 'nav-item flex items-center justify-between px-3 py-2.5 lg:py-2 rounded-lg text-xs font-semibold bg-brand/15 text-white border border-purple-500/30 transition'
+                    : 'nav-item flex items-center justify-between px-3 py-2.5 lg:py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-surface-800/60 border border-transparent transition';
+            });
+
+            // Mobile Bottom Navigation Bar
+            document.querySelectorAll('.bnav-item').forEach(btn => {
+                const active = btn.dataset.bnav === state.status;
+                btn.className = active
+                    ? 'bnav-item flex flex-col items-center justify-center gap-1 text-purple-400 font-semibold transition'
+                    : 'bnav-item flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white transition';
+            });
+
+            // Desktop & Drawer Origin Nav
+            document.querySelectorAll('.origin-item').forEach(btn => {
+                const active = btn.dataset.origin === state.origin;
+                btn.className = active
+                    ? 'origin-item flex items-center justify-between px-3 py-2 lg:py-1.5 rounded-lg text-xs font-semibold bg-surface-800 text-white border border-subtle transition'
+                    : 'origin-item flex items-center justify-between px-3 py-2 lg:py-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition';
+            });
+
+            // Genre Pills
+            document.querySelectorAll('.genre-pill').forEach(btn => {
+                const active = btn.dataset.genre === state.genre;
+                btn.className = active
+                    ? 'genre-pill px-3.5 py-1.5 rounded-full text-xs font-medium bg-[#820AD1] text-white shadow-sm whitespace-nowrap transition'
+                    : 'genre-pill px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-900 text-slate-400 hover:text-white border border-subtle whitespace-nowrap transition';
+            });
+
+            // Desktop & Mobile View Mode Toggles
+            const isGrid = state.view === 'grid';
+            const activeCls = 'p-1.5 rounded-md bg-surface-700 text-white transition';
+            const inactiveCls = 'p-1.5 rounded-md text-slate-400 hover:text-white transition';
+
+            document.getElementById('view-btn-grid').className = isGrid ? activeCls : inactiveCls;
+            document.getElementById('view-btn-table').className = !isGrid ? activeCls : inactiveCls;
+            document.getElementById('mobile-view-grid').className = isGrid ? activeCls : inactiveCls;
+            document.getElementById('mobile-view-table').className = !isGrid ? activeCls : inactiveCls;
+        }
+
+        // ================= RANDOMIZER MODAL =================
+        function openRandomizerModal() {
+            document.getElementById('randomizer-modal').classList.remove('hidden');
+        }
+
+        function closeRandomizerModal() {
+            document.getElementById('randomizer-modal').classList.add('hidden');
+        }
+
+        function runRandomizer() {
+            const pool = document.getElementById('rand-pool').value;
+            const genre = document.getElementById('rand-genre').value;
+
+            const candidates = catalog.filter(item => {
+                if (pool === 'priority' && item.status !== 'priority') return false;
+                if (pool === 'queue' && item.status !== 'queue') return false;
+                if (pool === 'pending' && (item.status !== 'priority' && item.status !== 'queue')) return false;
+                if (pool === 'series' && (item.type !== 'series' || item.status === 'watched')) return false;
+                if (genre !== 'all' && item.genre !== genre) return false;
+                return true;
+            });
+
+            const tagEl = document.getElementById('rand-status-tag');
+            const titleEl = document.getElementById('rand-title');
+            const metaEl = document.getElementById('rand-meta');
+            const actionsEl = document.getElementById('rand-actions');
+
+            if (candidates.length === 0) {
+                tagEl.textContent = 'Sem Correspondencia';
+                titleEl.textContent = 'Nenhum titulo disponivel';
+                metaEl.textContent = 'Altere o escopo ou categoria acima.';
+                actionsEl.classList.add('hidden');
+                return;
+            }
+
+            actionsEl.classList.add('hidden');
+            tagEl.textContent = 'Processando...';
+
+            let steps = 0;
+            const interval = setInterval(() => {
+                const sample = candidates[Math.floor(Math.random() * candidates.length)];
+                titleEl.textContent = sample.title;
+                metaEl.textContent = `${sample.genre} — ${sample.subgenre || ''}`;
+                steps++;
+
+                if (steps >= 12) {
+                    clearInterval(interval);
+                    const picked = candidates[Math.floor(Math.random() * candidates.length)];
+                    tagEl.textContent = picked.status === 'priority' ? 'Prioridade Selecionada' : 'Titulo Selecionado';
+                    tagEl.className = 'font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-brand/20 text-purple-300 border border-purple-500/30 mb-2';
+                    titleEl.textContent = picked.title;
+                    metaEl.textContent = `${picked.genre} • ${picked.subgenre || ''} (${getOriginLabel(picked.origin)})`;
+
+                    actionsEl.classList.remove('hidden');
+                    document.getElementById('rand-mark-watched').onclick = () => {
+                        setItemStatus(picked.id, 'watched');
+                        closeRandomizerModal();
+                    };
+                }
+            }, 55);
+        }
+
+        // ================= ADD / EDIT MODAL =================
+        function openAddModal() {
+            document.getElementById('entry-modal-title').textContent = 'Novo Registro no Catalogo';
+            document.getElementById('entry-id').value = '';
+            document.getElementById('entry-title').value = '';
+            document.getElementById('entry-type').value = 'movie';
+            document.getElementById('entry-status').value = 'priority';
+            document.getElementById('entry-genre').value = 'Suspense & Thriller';
+            document.getElementById('entry-origin').value = 'user';
+            document.getElementById('entry-subgenre').value = '';
+            document.getElementById('entry-note').value = '';
+            document.getElementById('delete-entry-btn').classList.add('hidden');
+            document.getElementById('entry-modal').classList.remove('hidden');
+        }
+
+        function openEditModal(id) {
+            const item = catalog.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('entry-modal-title').textContent = 'Editar Registro';
+            document.getElementById('entry-id').value = item.id;
+            document.getElementById('entry-title').value = item.title;
+            document.getElementById('entry-type').value = item.type;
+            document.getElementById('entry-status').value = item.status;
+            document.getElementById('entry-genre').value = item.genre;
+            document.getElementById('entry-origin').value = item.origin;
+            document.getElementById('entry-subgenre').value = item.subgenre || '';
+            document.getElementById('entry-note').value = item.note || '';
+            document.getElementById('delete-entry-btn').classList.remove('hidden');
+            document.getElementById('entry-modal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('entry-modal').classList.add('hidden');
+        }
+
+        function saveEntryForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('entry-id').value;
+            const title = document.getElementById('entry-title').value.trim();
+            const type = document.getElementById('entry-type').value;
+            const status = document.getElementById('entry-status').value;
+            const genre = document.getElementById('entry-genre').value;
+            const origin = document.getElementById('entry-origin').value;
+            const subgenre = document.getElementById('entry-subgenre').value.trim();
+            const note = document.getElementById('entry-note').value.trim();
+
+            if (!title) return;
+
+            if (id) {
+                const item = catalog.find(i => i.id === id);
+                if (item) {
+                    item.title = title;
+                    item.type = type;
+                    item.status = status;
+                    item.genre = genre;
+                    item.origin = origin;
+                    item.subgenre = subgenre;
+                    item.note = note;
+                }
+                notify('Registro atualizado');
+            } else {
+                catalog.unshift({
+                    id: 'item_' + Date.now(),
+                    title,
+                    type,
+                    status,
+                    genre,
+                    origin,
+                    subgenre,
+                    note,
+                    rating: 0
+                });
+                notify('Novo titulo adicionado');
+            }
+
+            persist();
+            closeAddModal();
+            render();
+        }
+
+        function deleteCurrentEntry() {
+            const id = document.getElementById('entry-id').value;
+            if (!id) return;
+            catalog = catalog.filter(i => i.id !== id);
+            persist();
+            closeAddModal();
+            render();
+            notify('Registro removido');
+        }
+
+        // ================= EXPORT / BACKUP MODAL =================
+        function openExportModal() {
+            const priorities = catalog.filter(i => i.status === 'priority' && i.type === 'movie');
+            const queue = catalog.filter(i => i.status === 'queue' && i.type === 'movie');
+            const watched = catalog.filter(i => i.status === 'watched' && i.type === 'movie');
+            const series = catalog.filter(i => i.type === 'series');
+
+            let report = `CINEVAULT — RELATORIO DE CATALOGO (EMANNUEL PETRY)\n`;
+            report += `====================================================\n\n`;
+
+            report += `1. ALTA PRIORIDADE (${priorities.length})\n`;
+            priorities.forEach(i => report += `[PRIORIDADE] ${i.title} — ${i.subgenre || i.genre}\n`);
+
+            report += `\n2. NA FILA (${queue.length})\n`;
+            queue.forEach(i => report += `[NA FILA] ${i.title} — ${i.subgenre || i.genre}\n`);
+
+            report += `\n3. CONCLUIDOS (${watched.length})\n`;
+            watched.forEach(i => report += `[CONCLUIDO] ${i.title}${i.note ? ' (Nota: ' + i.note + ')' : ''}\n`);
+
+            report += `\n4. SERIES E DOCUMENTARIOS (${series.length})\n`;
+            series.forEach(i => {
+                const tag = i.status === 'watched' ? '[CONCLUIDO]' : (i.status === 'priority' ? '[PRIORIDADE]' : '[NA FILA]');
+                report += `${tag} ${i.title} — ${i.subgenre || ''}\n`;
+            });
+
+            document.getElementById('export-textarea').value = report;
+            document.getElementById('export-modal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('export-modal').classList.add('hidden');
+        }
+
+        function copyExportText() {
+            const area = document.getElementById('export-textarea');
+            area.select();
+            document.execCommand('copy');
+            notify('Relatorio copiado');
+        }
+
+        function downloadJson() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(catalog, null, 2));
+            const link = document.createElement('a');
+            link.setAttribute("href", dataStr);
+            link.setAttribute("download", "cinevault_emannuel_petry.json");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            notify('Arquivo JSON exportado');
+        }
+
+        function importJson(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed)) {
+                        catalog = parsed;
+                        persist();
+                        render();
+                        closeExportModal();
+                        notify('Base importada com sucesso');
+                    }
+                } catch (err) {
+                    notify('Falha ao ler arquivo JSON');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ================= RESET MODAL =================
+        function openResetModal() {
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+
+        function confirmFactoryReset() {
+            catalog = JSON.parse(JSON.stringify(INITIAL_DATA));
+            persist();
+            closeResetModal();
+            resetAllFilters();
+            notify('Catalogo restaurado');
+        }
+
+        // Toast Notification
+        let toastTimer;
+        function notify(text) {
+            const el = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = text;
+            el.classList.remove('hidden', 'translate-y-2', 'opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                el.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => el.classList.add('hidden'), 200);
+            }, 2200);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
